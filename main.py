@@ -4,6 +4,7 @@
 from file_manager import *
 from state import *
 from automaton import *
+from automaton_operation import *
 
 def main():
     fm = FileManager()
@@ -20,9 +21,17 @@ def main():
 
     # print(transitions)
 
+    # Criando o autômato inicial
     automaton = Automaton(states, initial_state, marked_states, transitions)
 
+    # Instanciando classe em que serão feitas as operações no autômato
+    aut = AutomatonOperation(automaton)
+
+    print('AUTOMATO ORIGINAL:')
     print(automaton)
+
+    print('AUTOMATO ACESSIVEL:')
+    print(aut.accessibility())
 
 
 if __name__ == '__main__':
