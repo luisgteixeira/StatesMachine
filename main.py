@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 from file_manager import *
-from node import *
-from graph import *
+from state import *
+from automaton import *
 
 def main():
     fm = FileManager()
     fm.reset_log()
 
 	# Le os dados de entrada a partir de um arquivo texto
-    file_content = fm.read_input('input')
+    file_content = fm.read_input('input2')
     # print(file_content)
 
     states = file_content[0]
@@ -20,7 +20,7 @@ def main():
 
     # print(transitions)
 
-    automaton = Graph(states, initial_state, marked_states, transitions)
+    automaton = Automaton(states, initial_state, marked_states, transitions)
 
     print(automaton)
 

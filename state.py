@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-class Node(object):
+class State(object):
     """docstring for """
     def __init__(self, start=False, end=False):
         # super(, self).__init__()

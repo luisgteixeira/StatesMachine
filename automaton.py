@@ -1,27 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from node import *
+from state import *
 
-class Graph(object):
+class Automaton(object):
     """docstring for """
     def __init__(self, states, initial_state, marked_states, transitions):
         # super(, self).__init__()
+        self.initial_state = initial_state
         self.states = {}
 
         # Dividindo string em lista de estados
         states = str.split(states, ',')
-        marked_states = str.split(marked_states, ',')
+        self.marked_states = str.split(marked_states, ',')
 
         # Inicializa grafo apenas com os labels de cada estado sem suas transições
         for i,label in enumerate(states):
-            self.states[label] = Node()
+            self.states[label] = State()
 
         # Marca nó inicial
-        self.states[initial_state].start = True
+        self.states[self.initial_state].start = True
 
         # Marca os nós finais
-        for i,label in enumerate(marked_states):
+        for i,label in enumerate(self.marked_states):
             self.states[label].end = True
 
         # Dividindo lista de transições e adicionado cada transição ao seu nó
