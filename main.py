@@ -30,8 +30,10 @@ def main():
     print('AUTOMATO ORIGINAL:')
     print(automaton)
 
-    print('AUTOMATO ACESSIVEL:')
-    print(aut.accessibility())
+    # print('AUTOMATO ACESSIVEL:')
+    # print(aut.accessibility())
+    print('AUTOMATO CO-ACESSIVEL:')
+    print(aut.co_accessibility())
 
 
 if __name__ == '__main__':

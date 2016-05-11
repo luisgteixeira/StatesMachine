@@ -15,7 +15,7 @@ class AutomatonOperation(object):
 
     def accessibility(self):
         # Lista com os labels dos estados acessíveis
-        accessibles = []
+        accessible = []
 
         # Cópia do autômato original
         automaton = copy.deepcopy(self.automaton)
@@ -24,7 +24,7 @@ class AutomatonOperation(object):
         initial_state = automaton.states[automaton.initial_state]
 
         # Estado inicial sempre será um autômato acessível
-        accessibles.append(automaton.initial_state)
+        accessible.append(automaton.initial_state)
 
         # Pilha para salvar os estados que foram alcançados
         stack = []
@@ -38,8 +38,8 @@ class AutomatonOperation(object):
             first = stack.pop()
 
             # Testa se o elemento já foi colocado na lista
-            if not first in accessibles:
-                accessibles.append(first)
+            if not first in accessible:
+                accessible.append(first)
 
                 current_state = automaton.states[first]
 
@@ -47,8 +47,65 @@ class AutomatonOperation(object):
                 for i,key in enumerate(current_state.edges):
                     stack += current_state.edges[key]
 
-        return self.create_automaton(accessibles)
-        
+        return self.create_automaton(accessible)
+
+
+    def co_accessibility(self):
+        # Lista com os labels dos estados que alcançam pelo menos um estado final
+        co_accessible = []
+
+        # Cópia do autômato original
+        automaton = copy.deepcopy(self.automaton)
+
+        # Todos os estados finais são co-acessíveis
+        co_accessible += automaton.marked_states
+
+        # Lista com todos os labels do automato original
+        automaton_labels = list(self.automaton.states.keys())
+
+        # Tamanho da lista de estados co-acessíveis
+        current_size = len(co_accessible)
+        previous_size = 0
+
+        # Enquanto a quantidade de estados co-acessíveis aumentar
+        while current_size > previous_size:
+            for i,current_state in enumerate(automaton_labels):
+                # Testa se o estado já é co-acessível
+                if not current_state in co_accessible:
+                    # Lista com os estados em que o estado atual se liga
+                    edges = list(automaton.states[current_state].edges.values())
+
+                    #
+                    edges_list = []
+                    for j in range(len(edges)):
+                        edges_list += edges[j]
+
+                    j = 0
+                    while j < len(edges_list):
+                        if edges_list[j] in co_accessible:
+                            co_accessible.append(current_state)
+                            break
+
+                        j += 1
+
+            # Atualização do tamanho da lista de estados co-acessíveis
+            previous_size = current_size
+            current_size = len(co_accessible)
+
+        # Novo autômato apenas com os estados co-acessíveis
+        new_automaton = self.create_automaton(co_accessible)
+        for k,state in enumerate(new_automaton.states):
+            # Transições para estado não co-acessível são retiradas
+            for i,transition in enumerate(new_automaton.states[state].edges):
+                label = new_automaton.states[state].edges[transition].pop()
+                if label in co_accessible:
+                    new_automaton.states[state].edges[transition] = label
+                    # new_transitions.append(label)
+
+            # new_automaton.states[state].edges = new_transitions
+
+        return new_automaton
+
 
     def create_automaton(self, labels_list):
         '''
@@ -77,7 +134,6 @@ class AutomatonOperation(object):
                 del automaton.states[value]
 
         return automaton
-
 
 
 
