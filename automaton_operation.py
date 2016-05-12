@@ -13,12 +13,15 @@ class AutomatonOperation(object):
         # Cópia do autômato original
         self.automaton = copy.deepcopy(automaton)
 
-    def accessibility(self):
+    def accessibility(self, automaton=[]):
         # Lista com os labels dos estados acessíveis
         accessible = []
 
         # Cópia do autômato original
-        automaton = copy.deepcopy(self.automaton)
+        if not automaton:
+            automaton = copy.deepcopy(self.automaton)
+        else:
+            automaton = copy.deepcopy(automaton)
 
         # Estado inicial do autômato
         initial_state = automaton.states[automaton.initial_state]
@@ -50,12 +53,16 @@ class AutomatonOperation(object):
         return self.create_automaton(accessible)
 
 
-    def co_accessibility(self):
+    def co_accessibility(self, automaton=[]):
         # Lista com os labels dos estados que alcançam pelo menos um estado final
         co_accessible = []
 
         # Cópia do autômato original
-        automaton = copy.deepcopy(self.automaton)
+        if not automaton:
+            automaton = copy.deepcopy(self.automaton)
+        else:
+            automaton = copy.deepcopy(automaton)
+
 
         # Todos os estados finais são co-acessíveis
         co_accessible += automaton.marked_states
@@ -94,15 +101,19 @@ class AutomatonOperation(object):
 
         # Novo autômato apenas com os estados co-acessíveis
         new_automaton = self.create_automaton(co_accessible)
+
         for k,state in enumerate(new_automaton.states):
+            # Novas transições apenas com os estados co-acessíveis
+            new_transition = {}
             # Transições para estado não co-acessível são retiradas
             for i,transition in enumerate(new_automaton.states[state].edges):
                 label = new_automaton.states[state].edges[transition].pop()
+                # Se a transição for de um estado acessível, salva-se na nova
+                # lista de transições
                 if label in co_accessible:
-                    new_automaton.states[state].edges[transition] = label
-                    # new_transitions.append(label)
+                    new_transition[transition] = label
 
-            # new_automaton.states[state].edges = new_transitions
+            new_automaton.states[state].edges = new_transition
 
         return new_automaton
 
