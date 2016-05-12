@@ -36,6 +36,9 @@ def main():
     print('AUTOMATO TRIM:')
     print(aut.trim())
 
+    print('Renderizacao do automato')
+    automaton.draw('original')
+
 
 if __name__ == '__main__':
     main()

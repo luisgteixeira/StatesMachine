@@ -10,25 +10,15 @@ class State(object):
         self.edges = {}  # Arestas a quem o nó se liga
 
     def __str__(self):
-        """Retorna uma representação em string do no"""
-        # no_str = "--------------------------------------------------\n"
-        no_str = "Estado inicial? "
-        no_str += str(self.start)
-        no_str += ", Estado final? "
-        no_str += str(self.end)
-        no_str += ", Arestas = "
-        no_str += str(self.edges)
-        # no_str += "\nArestas = ["
-        #
-        # for i, edge in enumerate(self.edges):
-        #     no_str += str(edge)
-        #     # Não coloca vírgula na última transição
-        #     if i < len(self.edges) - 1:
-        #         no_str += ", "
-        # no_str += "]"
-        # no_str += "\n--------------------------------------------------\n"
+        """Retorna uma representação em string do estado"""
+        state_str = "Estado inicial? "
+        state_str += str(self.start)
+        state_str += ", Estado final? "
+        state_str += str(self.end)
+        state_str += ", Arestas = "
+        state_str += str(self.edges)
 
-        return no_str
+        return state_str
 
     def add_edge(self, event, state):
         # Evento já existe

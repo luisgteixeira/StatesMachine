@@ -2,13 +2,15 @@
 # -*- coding: utf-8 -*-
 
 from state import *
+from graphviz import Digraph
 
 class Automaton(object):
     """docstring for """
-    def __init__(self, states, initial_state, marked_states, transitions):
+    def __init__(self, states, events, initial_state, marked_states, transitions):
         # super(, self).__init__()
         self.initial_state = initial_state
         self.states = {}
+        self.events = events
 
         # Dividindo string em lista de estados
         states = str.split(states, ',')
@@ -37,7 +39,7 @@ class Automaton(object):
 
 
     def __str__(self):
-        """Retorna uma representação em string do grafo"""
+        """Retorna uma representação em string do automato"""
         no_str = "--------------------------------------------------\n"
 
         for i,key in enumerate(self.states):
@@ -51,3 +53,31 @@ class Automaton(object):
         no_str += "--------------------------------------------------\n"
 
         return no_str
+
+    def draw(self, name):
+        dot = Digraph(name = name, node_attr = {'shape': 'circle', 'style' : 'filled', 'fillcolor':'aquamarine4'})
+        dot.graph_attr['rankdir'] = 'LR'
+        dot.graph_attr['pad'] = '0.5,0.5'
+
+        states = list(self.states.keys())
+        states.sort()
+
+        for state in states:
+            if state in self.marked_states:
+                dot.node(state, shape = 'doublecircle', fillcolor = 'brown1', color = 'brown1')
+            elif state == self.initial_state:
+                dot.node(state, fillcolor = 'cornflowerblue')
+            else:
+                dot.node(state)
+
+        dot.node('', shape = 'point', fillcolor = '#000000')
+        dot.edge('', self.initial_state)
+
+        for state_label, state in self.states.items():
+            for event, edges in state.edges.items():
+                for edge in edges:
+                    dot.edge(state_label, edge, label = event)
+
+
+        dot.format = 'png'
+        dot.render()

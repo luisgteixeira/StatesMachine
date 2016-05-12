@@ -63,3 +63,5 @@ target/
 
 # Application log file
 log
+*.gv
+*.png
