@@ -15,14 +15,13 @@ def main():
     # print(file_content)
 
     states = file_content[0]
-    initial_state = file_content[1]
-    marked_states = file_content[2]
-    transitions = file_content[3:]
-
-    # print(transitions)
+    events = file_content[1]
+    initial_state = file_content[2]
+    marked_states = file_content[3]
+    transitions = file_content[4:]
 
     # Criando o autômato inicial
-    automaton = Automaton(states, initial_state, marked_states, transitions)
+    automaton = Automaton(states, events, initial_state, marked_states, transitions)
 
     # Instanciando classe em que serão feitas as operações no autômato
     aut = AutomatonOperation(automaton)
