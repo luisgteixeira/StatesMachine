@@ -32,7 +32,8 @@ class AutomatonOperation(object):
         # Pilha para salvar os estados que foram alcançados
         stack = []
 
-        # Lista de todos os estados que o estado inicial alcança vai para a pilha
+        # Lista de todos os estados que o estado inicial alcança vai para a
+        # pilha
         for i,key in enumerate(initial_state.edges):
             stack += initial_state.edges[key]
 
@@ -46,7 +47,8 @@ class AutomatonOperation(object):
 
                 current_state = automaton.states[first]
 
-                # Lista de todos os estados que o estado atual alcança vai para a pilha
+                # Lista de todos os estados que o estado atual alcança vai para
+                # a pilha
                 for i,key in enumerate(current_state.edges):
                     stack += current_state.edges[key]
 
@@ -54,7 +56,8 @@ class AutomatonOperation(object):
 
 
     def co_accessibility(self, automaton=[]):
-        # Lista com os labels dos estados que alcançam pelo menos um estado final
+        # Lista com os labels dos estados que alcançam pelo menos um estado
+        # final
         co_accessible = []
 
         # Cópia do autômato original
@@ -121,6 +124,59 @@ class AutomatonOperation(object):
     def trim(self):
         automaton = self.accessibility()
         return self.co_accessibility(automaton)
+
+
+    def total(self, automaton=[]):
+        # Cópia do autômato original
+        if not automaton:
+            automaton = copy.deepcopy(self.automaton)
+        else:
+            automaton = copy.deepcopy(automaton)
+
+        # Novo estado a ser criado, se necessário
+        new_state = []
+
+        # Laço de todos os estados
+        for state in automaton.states.values():
+            # Lista de eventos permitidos pelo estado atual
+            events_list = []
+
+            # print(transition.edges.values())
+            # Laço das transições de cada estado
+            for transitions in state.edges.keys():
+                if not transitions in events_list:
+                    events_list += transitions
+
+            # Cópia do alfabeto do autômato
+            automaton_events = copy.deepcopy(automaton.events)
+            # Deixa em 'automaton_events' apenas os eventos que não são
+            # permitidos pelo estado
+            for event in events_list:
+                if event in automaton_events:
+                    automaton_events.remove(event)
+
+            # Novo estado só é criado se no estado atual falta pelo menos uma
+            # transição utilizando algum evento do alfabeto
+            if automaton_events:
+                # Testa se o novo estado já foi ou não criado
+                if not new_state:
+                    new_state = State()
+                    # Cria um ciclo no novo estado para todos os eventos do
+                    # alfabeto
+                    for event in automaton.events:
+                        new_state.edges[event] = ['qTOTAL']
+
+                # Laço dos eventos ausentes no estado atual
+                for event in automaton_events:
+                    state.edges[event] = 'qTOTAL'
+
+        # Adiciona novo estado ao autômato, se o mesmo tiver sido criado
+        # anteriormente
+        if new_state:
+            automaton.states['qTOTAL'] = new_state
+
+
+        return automaton
 
 
     def create_automaton(self, labels_list):
