@@ -32,8 +32,10 @@ def main():
 
     # print('AUTOMATO ACESSIVEL:')
     # print(aut.accessibility())
-    print('AUTOMATO CO-ACESSIVEL:')
-    print(aut.co_accessibility())
+    # print('AUTOMATO CO-ACESSIVEL:')
+    # print(aut.co_accessibility())
+    print('AUTOMATO TRIM:')
+    print(aut.trim())
 
 
 if __name__ == '__main__':

@@ -19,8 +19,10 @@ class AutomatonOperation(object):
 
         # Cópia do autômato original
         if not automaton:
+            print('Accessibility (certo)')
             automaton = copy.deepcopy(self.automaton)
         else:
+            print('Accessibility (errado)')
             automaton = copy.deepcopy(automaton)
 
         # Estado inicial do autômato
@@ -53,22 +55,24 @@ class AutomatonOperation(object):
         return self.create_automaton(accessible)
 
 
-    def co_accessibility(self, automaton=[]):
+    def co_accessibility(self, aut=[]):
         # Lista com os labels dos estados que alcançam pelo menos um estado final
         co_accessible = []
 
         # Cópia do autômato original
-        if not automaton:
+        if not aut:
+            print('Co-accessibility (errado)')
             automaton = copy.deepcopy(self.automaton)
         else:
-            automaton = copy.deepcopy(automaton)
+            print('Co-accessibility (certo)')
+            automaton = copy.deepcopy(aut)
 
 
         # Todos os estados finais são co-acessíveis
         co_accessible += automaton.marked_states
 
         # Lista com todos os labels do automato original
-        automaton_labels = list(self.automaton.states.keys())
+        automaton_labels = list(automaton.states.keys())
 
         # Tamanho da lista de estados co-acessíveis
         current_size = len(co_accessible)
@@ -116,6 +120,11 @@ class AutomatonOperation(object):
             new_automaton.states[state].edges = new_transition
 
         return new_automaton
+
+
+    def trim(self):
+        automaton = self.accessibility()
+        return self.co_accessibility(automaton)
 
 
     def create_automaton(self, labels_list):
