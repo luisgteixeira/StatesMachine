@@ -189,6 +189,79 @@ class AutomatonOperation(object):
         return automaton
 
 
+    def minimization(self, automaton=[]):
+        # Cópia do autômato original
+        if not automaton:
+            automaton = copy.deepcopy(self.automaton)
+        else:
+            automaton = copy.deepcopy(automaton)
+
+        # automaton = self.convert(automaton)
+        automaton = self.accessibility(automaton)
+        automaton = self.total(automaton)
+
+        # Lista com labels de todos os estados
+        states = list(automaton.states.keys())
+
+        # Lista com os pares que serão marcados
+        marked_pairs = []
+
+        # Marca todo par de estado nas condições -> (final, não final)
+        for i in range(len(states)):
+            j = i + 1
+            while j < len(states):
+                if states[i] in automaton.marked_states:
+                    if not states[j] in automaton.marked_states:
+                        marked_pairs.append([states[i], states[j]])
+                elif states[j] in automaton.marked_states:
+                    if not states[i] in automaton.marked_states:
+                        marked_pairs.append([states[i], states[j]])
+
+                j += 1
+
+        for i in range(len(states)):
+            j = i + 1
+            while j < len(states):
+                # Para todo par não marcado anteriormente
+                if not [states[i], states[j]] in marked_pairs:
+                    # Lista com os estados que talvez serão marcados
+                    list_ij = {}
+
+                    # Para todos os eventos do alfabeto
+                    for event in automaton.events:
+                        # Estados alcançados pelo par de estados
+                        state_i = automaton.states[states[i]].edges[event]
+                        state_j = automaton.states[states[j]].edges[event]
+
+                        # Se o par de estados alcançados já for marcado
+                        if (state_i + state_j) in marked_pairs:
+                            # Adiciona a lista de pares marcados
+                            marked_pairs.append([states[i], states[j]])
+                            # Marcar todos os pares da lista
+                            break
+                        else:
+                            # Acrescentar os pares (states[i], states[j]) à
+                            # lista de (state_i, state_j)
+                            if state_i != state_j:
+                                if not [states[i], states[j]] in list_ij.values():
+                                    pair = state_i[0] + ', ' + state_j[0]
+                                    if not pair in list_ij.keys():
+                                        list_ij[pair] = [[states[i], states[j]]]
+                                    else:
+                                        pair_aux = list_ij.get(pair)
+                                        pair_aux.append([states[i], states[j]])
+                                        list_ij[pair] = pair_aux
+
+                    print(list_ij)
+
+
+                j += 1
+
+        print(marked_pairs)
+
+        return automaton
+
+
     def create_automaton(self, labels_list):
         '''
         Cria um autômato similar ao autômato original mas apenas com os estados
