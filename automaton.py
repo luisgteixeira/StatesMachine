@@ -11,7 +11,7 @@ class Automaton(object):
         # super(, self).__init__()
         self.initial_state = initial_state
         self.states = {}
-        self.events = str.plit(events, ',')
+        self.events = str.split(events, ',')
 
         # Dividindo string em lista de estados
         states = str.split(states, ',')

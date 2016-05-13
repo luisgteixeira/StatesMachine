@@ -105,17 +105,27 @@ class AutomatonOperation(object):
         # Novo autômato apenas com os estados co-acessíveis
         new_automaton = self.create_automaton(co_accessible)
 
-        for k,state in enumerate(new_automaton.states):
+        for state in new_automaton.states:
             # Novas transições apenas com os estados co-acessíveis
             new_transition = {}
             # Transições para estado não co-acessível são retiradas
-            for i,transition in enumerate(new_automaton.states[state].edges):
-                label = new_automaton.states[state].edges[transition].pop()
-                # Se a transição for de um estado acessível, salva-se na nova
-                # lista de transições
-                if label in co_accessible:
-                    new_transition[transition] = label
+            for transition in new_automaton.states[state].edges:
+                # Lista para salvar a lista de labels da transição
+                labels = []
 
+                # Estado que pode ser alcançado para cada evento
+                for event in new_automaton.states[state].edges[transition]:
+                    # Se a transição for de um estado acessível, salva-se na
+                    # nova lista de transições
+                    if event in co_accessible:
+                        labels.append(event)
+
+                # Salva lista apenas com os estados có-acessíveis
+                if labels:
+                    new_transition[transition] = labels
+
+            # Salva nova lista de transições, sem os estados que não são
+            # co-acessíveis
             new_automaton.states[state].edges = new_transition
 
         return new_automaton
@@ -168,7 +178,7 @@ class AutomatonOperation(object):
 
                 # Laço dos eventos ausentes no estado atual
                 for event in automaton_events:
-                    state.edges[event] = 'qTOTAL'
+                    state.edges[event] = ['qTOTAL']
 
         # Adiciona novo estado ao autômato, se o mesmo tiver sido criado
         # anteriormente

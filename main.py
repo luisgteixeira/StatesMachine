@@ -28,16 +28,19 @@ def main():
 
     print('AUTOMATO ORIGINAL:')
     print(automaton)
+    # automaton.draw('Original')
 
     # print('AUTOMATO ACESSIVEL:')
     # print(aut.accessibility())
-    # print('AUTOMATO CO-ACESSIVEL:')
-    # print(aut.co_accessibility())
-    print('AUTOMATO TRIM:')
-    print(aut.trim())
+    print('AUTOMATO CO-ACESSIVEL:')
+    print(aut.co_accessibility())
+    # print('AUTOMATO TRIM:')
+    # print(aut.trim())
 
-    print('Renderizacao do automato')
-    automaton.draw('original')
+    # aut.accessibility().draw('Acessibilidade')
+    aut.co_accessibility().draw('Co-acessibilidade')
+    # aut.trim().draw('Trim')
+    # aut.total().draw('Total')
 
 
 if __name__ == '__main__':
