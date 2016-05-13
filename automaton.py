@@ -3,6 +3,7 @@
 
 from state import *
 from graphviz import Digraph
+import os
 
 class Automaton(object):
     """docstring for """
@@ -10,7 +11,7 @@ class Automaton(object):
         # super(, self).__init__()
         self.initial_state = initial_state
         self.states = {}
-        self.events = events
+        self.events = str.plit(events, ',')
 
         # Dividindo string em lista de estados
         states = str.split(states, ',')
@@ -55,29 +56,46 @@ class Automaton(object):
         return no_str
 
     def draw(self, name):
-        dot = Digraph(name = name, node_attr = {'shape': 'circle', 'style' : 'filled', 'fillcolor':'aquamarine4'})
+        # Cria grafo direcionado e define o estilo padrao dos nos
+        dot = Digraph(name = name)
         dot.graph_attr['rankdir'] = 'LR'
         dot.graph_attr['pad'] = '0.5,0.5'
+        dot.node_attr['shape'] = 'circle'
+        dot.node_attr['style'] = 'filled'
+        dot.node_attr['fillcolor'] = 'aquamarine4'
+        dot.format = 'png'
 
+        # Obtem os rotulos dos estados e os coloca em ordem alfabetica
         states = list(self.states.keys())
         states.sort()
 
+        # Adicionana cada estado como um no do grafo
         for state in states:
-            if state in self.marked_states:
+            # Estilo do estado inicial
+            if state == self.initial_state:
+                # Estilo diferenciado caso o estado inicial seja tambem final
+                if state in self.marked_states:
+                    dot.node(state, shape = 'doublecircle', fillcolor = 'cornflowerblue', color = 'cornflowerblue')
+                else:
+                    dot.node(state, fillcolor = 'cornflowerblue')
+            elif state in self.marked_states:
+                # Estili diferenciado para os estados finais
                 dot.node(state, shape = 'doublecircle', fillcolor = 'brown1', color = 'brown1')
-            elif state == self.initial_state:
-                dot.node(state, fillcolor = 'cornflowerblue')
             else:
+                # Adiciona estados com o estilo padrao
                 dot.node(state)
 
+        # Adiciona no que aponta para o estado inicial
         dot.node('', shape = 'point', fillcolor = '#000000')
         dot.edge('', self.initial_state)
 
+        # Adciona os eventos
         for state_label, state in self.states.items():
             for event, edges in state.edges.items():
                 for edge in edges:
                     dot.edge(state_label, edge, label = event)
 
-
-        dot.format = 'png'
+        # Renderiza a imagem do automato
         dot.render()
+
+        os.system('shotwell ' + name + '.gv.png')
