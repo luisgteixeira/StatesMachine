@@ -280,9 +280,9 @@ class AutomatonOperation(object):
 
                 j += 1
 
-        automaton = create_automaton_minimized(all_pairs, marked_pairs)
+        automaton = self.create_automaton_minimized(all_pairs, marked_pairs)
 
-        return automaton
+        # return automaton
 
 
     def create_automaton(self, labels_list):
@@ -312,6 +312,28 @@ class AutomatonOperation(object):
                 del automaton.states[value]
 
         return automaton
+
+
+    def create_automaton_minimized(self, all_pairs, marked_pairs):
+        '''
+        Cria um autômato minimizado a partir das marcações feitas
+        anteriormente.
+        '''
+        # Lista com todos os pores que não foram marcados
+        no_marked = all_pairs
+
+        # Lista com todos os labels do automato original
+        automaton_labels = list(self.automaton.states.keys())
+
+        # Remove pares marcados, resultando em uma lista com todos os pares
+        # que não foram marcados
+        for pair in marked_pairs:
+            if pair in no_marked:
+                no_marked.remove(pair)
+
+        print(no_marked)
+
+        # return automaton
 
 
     def __str__(self):
