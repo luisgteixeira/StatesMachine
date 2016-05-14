@@ -11,7 +11,7 @@ def main():
     fm.reset_log()
 
 	# Le os dados de entrada a partir de um arquivo texto
-    file_content = fm.read_input('input2')
+    file_content = fm.read_input('input3')
     # print(file_content)
 
     states = file_content[0]
@@ -32,15 +32,16 @@ def main():
 
     # print('AUTOMATO ACESSIVEL:')
     # print(aut.accessibility())
-    print('AUTOMATO CO-ACESSIVEL:')
-    print(aut.co_accessibility())
+    # print('AUTOMATO CO-ACESSIVEL:')
+    # print(aut.co_accessibility())
     # print('AUTOMATO TRIM:')
     # print(aut.trim())
 
     # aut.accessibility().draw('Acessibilidade')
-    aut.co_accessibility().draw('Co-acessibilidade')
+    # aut.co_accessibility().draw('Co-acessibilidade')
     # aut.trim().draw('Trim')
     # aut.total().draw('Total')
+    aut.minimization()#.draw('Minimizacao')
 
 
 if __name__ == '__main__':

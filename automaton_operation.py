@@ -203,6 +203,8 @@ class AutomatonOperation(object):
         # Lista com labels de todos os estados
         states = list(automaton.states.keys())
 
+        # Lista com todos os possíveis pares
+        all_pairs = []
         # Lista com os pares que serão marcados
         marked_pairs = []
 
@@ -217,47 +219,68 @@ class AutomatonOperation(object):
                     if not states[i] in automaton.marked_states:
                         marked_pairs.append([states[i], states[j]])
 
+                all_pairs.append([states[i], states[j]])
                 j += 1
+
+        # Dicionário com os estados que talvez serão marcados
+        dict_ij = {}
+
 
         for i in range(len(states)):
             j = i + 1
+
             while j < len(states):
                 # Para todo par não marcado anteriormente
                 if not [states[i], states[j]] in marked_pairs:
-                    # Lista com os estados que talvez serão marcados
-                    list_ij = {}
-
                     # Para todos os eventos do alfabeto
                     for event in automaton.events:
                         # Estados alcançados pelo par de estados
                         state_i = automaton.states[states[i]].edges[event]
                         state_j = automaton.states[states[j]].edges[event]
 
+                        # Retira estados da lista
+                        state_i = state_i[0]
+                        state_j = state_j[0]
+
+                        # Auxilia no posicionamento certo do par da transição
+                        # pois o dicionário em Python não garante a posição
+                        # correta
+                        if states.index(state_i) < states.index(state_j):
+                            pair_xe_ye = [state_i, state_j]
+                            pair_xe_ye1 = state_i + ', ' + state_j
+                            pair_x_y = [states[i], states[j]]
+                            pair_x_y1 = states[i] + ', ' + states[j]
+                        else:
+                            pair_xe_ye = [state_j, state_i]
+                            pair_xe_ye1 = state_j + ', ' + state_i
+                            pair_x_y = [states[j], states[i]]
+                            pair_x_y1 = states[j] + ', ' + states[i]
+
+
                         # Se o par de estados alcançados já for marcado
-                        if (state_i + state_j) in marked_pairs:
-                            # Adiciona a lista de pares marcados
-                            marked_pairs.append([states[i], states[j]])
-                            # Marcar todos os pares da lista
+                        if pair_xe_ye in marked_pairs:
+                            # Adiciona a lista de pares a lista de marcados
+                            marked_pairs.append(pair_x_y)
+                            if pair_x_y1 in dict_ij.keys():
+                                for state in dict_ij[pair_x_y1]:
+                                    marked_pairs.append(state)
+
                             break
                         else:
                             # Acrescentar os pares (states[i], states[j]) à
                             # lista de (state_i, state_j)
                             if state_i != state_j:
-                                if not [states[i], states[j]] in list_ij.values():
-                                    pair = state_i[0] + ', ' + state_j[0]
-                                    if not pair in list_ij.keys():
-                                        list_ij[pair] = [[states[i], states[j]]]
-                                    else:
-                                        pair_aux = list_ij.get(pair)
-                                        pair_aux.append([states[i], states[j]])
-                                        list_ij[pair] = pair_aux
-
-                    print(list_ij)
-
+                            # Marcar todos os pares da lista
+                                if not pair_xe_ye1 in dict_ij.keys():
+                                    dict_ij[pair_xe_ye1] = [pair_x_y]
+                                elif not pair_x_y in dict_ij[pair_xe_ye1]:
+                                    pair_aux = dict_ij.get(pair_xe_ye1)
+                                    pair_aux.append(pair_x_y)
+                                    dict_ij[pair_xe_ye1] = pair_aux
 
                 j += 1
 
-        print(marked_pairs)
+        automaton = create_automaton_minimized(all_pairs, marked_pairs)
 
         return automaton
 
@@ -289,23 +312,6 @@ class AutomatonOperation(object):
                 del automaton.states[value]
 
         return automaton
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     def __str__(self):
