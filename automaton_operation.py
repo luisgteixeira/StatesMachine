@@ -202,6 +202,8 @@ class AutomatonOperation(object):
 
         # Lista com labels de todos os estados
         states = list(automaton.states.keys())
+        # Lista com labels ordenada
+        states.sort()
 
         # Lista com todos os possíveis pares
         all_pairs = []
@@ -280,9 +282,10 @@ class AutomatonOperation(object):
 
                 j += 1
 
+        # Cria automato similar ao original, mas retirando os pares equivalentes
         automaton = self.create_automaton_minimized(all_pairs, marked_pairs)
 
-        # return automaton
+        return automaton
 
 
     def create_automaton(self, labels_list):
@@ -322,18 +325,46 @@ class AutomatonOperation(object):
         # Lista com todos os pores que não foram marcados
         no_marked = all_pairs
 
-        # Lista com todos os labels do automato original
-        automaton_labels = list(self.automaton.states.keys())
-
         # Remove pares marcados, resultando em uma lista com todos os pares
         # que não foram marcados
         for pair in marked_pairs:
             if pair in no_marked:
                 no_marked.remove(pair)
 
-        print(no_marked)
+        # Copia do autômato original
+        automaton = copy.deepcopy(self.automaton)
 
-        # return automaton
+        # Percorre todos os pares de nós marcados
+        for n_st in no_marked:
+            # Cria nova label a partir do par de nó
+            new_label = n_st[0] + ', ' + n_st[1]
+
+            # Percorre todos os estados do automato com a finalidade de mudar
+            # as transições para o novo estado (new_label)
+            for state in automaton.states.values():
+                # Percorre os estados alcançáveis pelo estado atual
+                for transition in state.edges.values():
+                    # Se a transição for para um dos pares equivalentes, a
+                    # transição mudará para o novo par
+                    if transition[0] == n_st[0] or transition[0] == n_st[1]:
+                        transition[0] = new_label
+
+            # Cria novo estado similar a um dos estados do par
+            automaton.states[new_label] = automaton.states[n_st[0]]
+
+            # Remove os estados do par
+            del automaton.states[n_st[0]]
+            del automaton.states[n_st[1]]
+
+            # Entra se o novo estado for final
+            if (n_st[0] in automaton.marked_states) and (n_st[1] in automaton.marked_states):
+                # Coloca novo estado na lista dos estados finais e retira da
+                # lista os estados do par
+                automaton.marked_states.append(new_label)
+                automaton.marked_states.remove(n_st[0])
+                automaton.marked_states.remove(n_st[1])
+
+        return automaton
 
 
     def __str__(self):

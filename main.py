@@ -41,7 +41,7 @@ def main():
     # aut.co_accessibility().draw('Co-acessibilidade')
     # aut.trim().draw('Trim')
     # aut.total().draw('Total')
-    aut.minimization()#.draw('Minimizacao')
+    aut.minimization().draw('Minimizacao')
 
 
 if __name__ == '__main__':
