@@ -6,6 +6,7 @@ import tkinter.ttk as ttk
 from file_manager import *
 from automaton import *
 import os.path
+import os
 from PIL import ImageTk, Image
 
 class Tab(tk.Frame):
@@ -37,7 +38,7 @@ class Tab(tk.Frame):
 
 
     def create_widgets(self):
-        self.image = ImageTk.PhotoImage(Image.open(self.file_name + ".gv.png").convert("RGB"))
+        self.image = ImageTk.PhotoImage(Image.open('output' + os.sep + self.file_name + ".png").convert("RGB"))
         label_image = tk.Label(self, image = self.image)
         label_image.pack()
 

@@ -4,11 +4,14 @@
 from state import *
 from graphviz import Digraph
 import os
+import os.path
 
 class Automaton(object):
     """docstring for """
     def __init__(self, states, events, initial_state, marked_states, transitions):
         # super(, self).__init__()
+        self.OUTPUT_DIR = 'output'
+
         self.initial_state = initial_state
         self.states = {}
         self.events = str.split(events, ',')
@@ -95,7 +98,14 @@ class Automaton(object):
                 for edge in edges:
                     dot.edge(state_label, edge, label = event)
 
-        # Renderiza a imagem do automato
-        dot.render()
 
-        os.system('shotwell ' + name + '.gv.png')
+        if not os.path.exists(self.OUTPUT_DIR) or not os.path.isdir(self.OUTPUT_DIR):
+            os.mkdir(self.OUTPUT_DIR)
+
+        # Renderiza a imagem do automato
+        dot.render(self.OUTPUT_DIR + os.sep + name)
+
+        os.remove(self.OUTPUT_DIR + os.sep + name)
+
+
+        # os.system('shotwell ' + name + '.gv.png')
