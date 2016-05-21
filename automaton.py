@@ -10,8 +10,6 @@ class Automaton(object):
     """docstring for """
     def __init__(self, states, events, initial_state, marked_states, transitions):
         # super(, self).__init__()
-        self.OUTPUT_DIR = 'output'
-
         self.initial_state = initial_state
         self.states = {}
         self.events = str.split(events, ',')
@@ -60,6 +58,7 @@ class Automaton(object):
 
     def draw(self, name):
         # Cria grafo direcionado e define o estilo padrao dos nos
+        self.OUTPUT_DIR = 'output'
         dot = Digraph(name = name)
         dot.graph_attr['rankdir'] = 'LR'
         dot.graph_attr['pad'] = '0.5,0.5'
@@ -98,14 +97,14 @@ class Automaton(object):
                 for edge in edges:
                     dot.edge(state_label, edge, label = event)
 
-
+        # Verifica se o diretoria output existe, caso nao exista ele e criado
         if not os.path.exists(self.OUTPUT_DIR) or not os.path.isdir(self.OUTPUT_DIR):
             os.mkdir(self.OUTPUT_DIR)
 
         # Renderiza a imagem do automato
         dot.render(self.OUTPUT_DIR + os.sep + name)
 
+        # Remove os arquivos desnecessarios apos renderizacao
         os.remove(self.OUTPUT_DIR + os.sep + name)
-
 
         # os.system('shotwell ' + name + '.gv.png')
