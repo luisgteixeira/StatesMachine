@@ -3,60 +3,78 @@
 
 import tkinter as tk
 import tkinter.ttk as ttk
+from tkinter import filedialog
+from automaton import *
+from tab import *
 
 class Application(tk.Frame):
     """docstring for Application."""
+
     def __init__(self, master = None):
+        """"""
         tk.Frame.__init__(self, master)
         self.parent = master
         self.parent.title('FSM')
+        self.grid(column = 1, row = 1, sticky = tk.NW)
 
-        self.pack(side = 'left')
         self.create_widgets()
 
 
     def create_widgets(self):
+        """"""
         # Cria barra de menus
         self.create_menubar()
 
         # Cria frame de botoes
-        self.buttons_frame = tk.Frame(self)
-        self.buttons_frame.pack(side = 'left')
+        self.create_buttons_frame()
 
-        self.operations_label = tk.Label(self.buttons_frame)
-        self.operations_label['text'] = 'Operaçoes com automatos'
-        self.operations_label['justify'] = 'center'
-        self.operations_label['pady'] = '5'
-        self.operations_label['padx'] = '5'
-        self.operations_label['font'] = 'bold 10'
-        self.operations_label['fg'] = '#006400'
-        self.operations_label.pack()
+        self.create_tabbed_frame()
+
+
+    def create_tabbed_frame(self):
+        """"""
+        self.tabbed_frame = ttk.Notebook(self, padding = '5 20 5 5')
+        # self.tabbed_frame.grid(column = 2, row = 1, sticky = tk.N)
+
+
+    def add_tab(self, tab):
+        """"""
+        if len(self.tabbed_frame.tabs()) == 0:
+            self.tabbed_frame.grid(column = 2, row = 1, sticky = tk.N)
+        self.tabbed_frame.add(tab, text = tab.get_file_name())
+
+
+    def create_buttons_frame(self):
+        """"""
+        self.tabbed_buttons_frame = ttk.Notebook(self, padding = '5 20 5 5')
+
+        self.buttons_frame = tk.Frame(self.tabbed_buttons_frame)
+        self.buttons_frame.pack()
+        self.buttons_frame['pady'] = '4'
+        self.buttons_frame['padx'] = '4'
+
+        self.tabbed_buttons_frame.add(self.buttons_frame, text = 'Operações com automatos')
+        self.tabbed_buttons_frame.grid(row = 1, column = 1, sticky = tk.N)
 
         self.create_buttons()
 
-        # Cria frame de abas
-        self.content_frame = tk.Frame(self)
-        self.content_frame.pack(side = 'left')
-        self.empty_content_label = tk.Label(self.content_frame)
-        self.empty_content_label['text'] = 'Frame de abas'
-        self.empty_content_label.pack()
-
-
-
 
     def create_menubar(self):
+        """"""
+        self.file_opt = options = {}
         self.menubar = tk.Menu(self.parent)
         self.parent.config(menu = self.menubar)
 
         self.file_menu = tk.Menu(self.menubar, tearoff=0)
         self.file_menu.add_command(label = 'Novo automato')
-        self.file_menu.add_command(label = 'Abrir automato')
+        self.file_menu.add_command(label = 'Abrir automato', command = self.select_file)
         self.file_menu.add_separator()
         self.file_menu.add_command(label = 'Sair', command = self.exit)
         self.menubar.add_cascade(label = 'Arquivo', menu = self.file_menu)
 
 
     def create_buttons(self):
+        """"""
         # Botao para conversao AFN -> AFD
         self.afn2afd_button = tk.Button(self.buttons_frame, text = 'AFN -> AFD')
         self.stylize_button(self.afn2afd_button)
@@ -93,16 +111,25 @@ class Application(tk.Frame):
         self.minimization_button.pack()
 
 
+    def select_file(self):
+        """Abre caixa de dialogo para selecao do arquivo"""
+        file_name = filedialog.askopenfilename(**self.file_opt)
+        if file_name:
+            tab = Tab(file_name, self.tabbed_frame)
+            self.add_tab(tab)
+
+
+
     def stylize_button(self, button):
         """Aplica a estilizacao aos botoes."""
         BUTTON_WIDTH = '20'
         BUTTON_HEIGHT = '2'
-
         button['width'] = BUTTON_WIDTH
         button['height'] = BUTTON_HEIGHT
 
 
     def exit(self):
+        """"""
         self.parent.destroy()
 
 if __name__ == '__main__':
