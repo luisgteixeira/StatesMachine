@@ -107,4 +107,4 @@ class Automaton(object):
         # Remove os arquivos desnecessarios apos renderizacao
         os.remove(self.OUTPUT_DIR + os.sep + name)
 
-        # os.system('shotwell ' + name + '.gv.png')
+        os.system('shotwell ' + self.OUTPUT_DIR + os.sep + name + '.png')

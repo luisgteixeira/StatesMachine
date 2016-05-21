@@ -28,13 +28,13 @@ class Application(tk.Frame):
         # Cria frame de botoes
         self.create_buttons_frame()
 
+        # Cria frame para exibicao dos automatos
         self.create_tabbed_frame()
 
 
     def create_tabbed_frame(self):
         """"""
         self.tabbed_frame = ttk.Notebook(self, padding = '5 20 5 5')
-        # self.tabbed_frame.grid(column = 2, row = 1, sticky = tk.N)
 
 
     def add_tab(self, tab):
@@ -62,6 +62,9 @@ class Application(tk.Frame):
     def create_menubar(self):
         """"""
         self.file_opt = options = {}
+        self.file_opt['filetypes'] = [('arquivos fsm', '.fsm')]
+        self.file_opt['title'] = 'Selecione um arquivo'
+
         self.menubar = tk.Menu(self.parent)
         self.parent.config(menu = self.menubar)
 
