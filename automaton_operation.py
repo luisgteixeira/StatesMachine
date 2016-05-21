@@ -52,7 +52,7 @@ class AutomatonOperation(object):
                 for i,key in enumerate(current_state.edges):
                     stack += current_state.edges[key]
 
-        return self.create_automaton(accessible)
+        return self.create_automaton(accessible, automaton)
 
 
     def co_accessibility(self, automaton=[]):
@@ -103,7 +103,7 @@ class AutomatonOperation(object):
             current_size = len(co_accessible)
 
         # Novo autômato apenas com os estados co-acessíveis
-        new_automaton = self.create_automaton(co_accessible)
+        new_automaton = self.create_automaton(co_accessible, automaton)
 
         for state in new_automaton.states:
             # Novas transições apenas com os estados co-acessíveis
@@ -131,8 +131,14 @@ class AutomatonOperation(object):
         return new_automaton
 
 
-    def trim(self):
-        automaton = self.accessibility()
+    def trim(self, automaton=[]):
+        # Cópia do autômato original
+        if not automaton:
+            automaton = copy.deepcopy(self.automaton)
+        else:
+            automaton = copy.deepcopy(automaton)
+
+        automaton = self.accessibility(automaton)
         return self.co_accessibility(automaton)
 
 
@@ -285,17 +291,103 @@ class AutomatonOperation(object):
         # Cria automato similar ao original, mas retirando os pares equivalentes
         automaton = self.create_automaton_minimized(all_pairs, marked_pairs)
 
+        # Exclusão dos estados inúteis
+        self.co_accessibility(automaton)
+
         return automaton
 
 
-    def create_automaton(self, labels_list):
+    def product_composition(self, automaton_1, automaton_2=[]):
+        # Cópia do autômato original
+        if not automaton_2:
+            automaton_2 = copy.deepcopy(self.automaton)
+        else:
+            automaton_2 = copy.deepcopy(automaton)
+
+        # Novos estados a serem criados
+        new_states = {}
+        # Estados que serão os novos estados finais
+        marked_states = []
+        # Lista com as transições do autômato
+        transitions = []
+
+        for key_1 in automaton_1.states:
+            for key_2 in automaton_2.states:
+                # Label do novo estado a ser criado
+                new_st = key_1 + ';' + key_2
+
+                # Estado será inicial quando os dois estados que o origina forem
+                # estados iniciais
+                if key_1 == automaton_1.initial_state:
+                    if key_2 == automaton_2.initial_state:
+                        initial_state = new_st
+
+                # Estado será final quando os dois estados que o origina forem
+                # estados finais
+                if key_1 in automaton_1.marked_states:
+                    if key_2 in automaton_2.marked_states:
+                        marked_states.append(new_st)
+
+                # Criando lista com união dos eventos do automaton_1 e do
+                # automaton_2
+                all_events = automaton_1.events
+                for event in automaton_2.events:
+                    # Se é o evento não existia no alfabeto do automaton_1,
+                    # então adiciona na lista
+                    if not event in all_events:
+                        all_events.append(event)
+
+                for event in all_events:
+                    # Retorna transição para determinado evento, se o evento
+                    # for do alfabeto do autômato
+                    if event in automaton_1.states[key_1].edges.keys():
+                        transition_1 = automaton_1.states[key_1].edges[event][0]
+                    else:
+                        continue
+                    if event in automaton_2.states[key_2].edges.keys():
+                        transition_2 = automaton_2.states[key_2].edges[event][0]
+                    else:
+                        continue
+
+                    # Se não houver transição para determinado evento, será
+                    # utilizado o próprio estado para criar a nova transição
+                    new_trans = transition_1
+                    new_trans += ';' + transition_2
+
+                    # É adicionado ao dicionário o novo estado com a sua nova
+                    # transição
+                    new_states[new_st] = [new_trans]
+
+                    transitions.append(new_st + '-' + event + '-' + new_trans)
+
+        # Criando uma string com os eventos separados por vírgula
+        all_events = ','.join(all_events)
+        # Criando uma string com os novos estados separados por vírgula
+        new_states = ','.join(new_states.keys())
+        # Criando uma string com os estados finais separados por vírgula
+        marked_states = ','.join(marked_states)
+
+        # Criando o autômato inicial
+        automaton = Automaton(new_states, all_events, initial_state, marked_states, transitions)
+        automaton = self.accessibility(automaton)
+
+        return automaton
+        
+
+    def create_automaton(self, labels_list, automaton=[]):
         '''
         Cria um autômato similar ao autômato original mas apenas com os estados
         dos labels da lista passada por parâmetro.
         '''
 
+        # Cópia do autômato original
+        if not automaton:
+            automaton = copy.deepcopy(self.automaton)
+        else:
+            automaton = copy.deepcopy(automaton)
+
         # Lista com todos os labels do automato original
-        automaton_labels = list(self.automaton.states.keys())
+        automaton_labels = list(automaton.states.keys())
 
         # Lista com todos os estados que não pertencerão ao automato a ser criado
         states_to_remove = []
@@ -305,9 +397,6 @@ class AutomatonOperation(object):
         for i,value in enumerate(automaton_labels):
             if not value in labels_list:
                 states_to_remove.append(value)
-
-        # Copia do autômato original
-        automaton = copy.deepcopy(self.automaton)
 
         # Remove os estados se a lista não for vazia
         if states_to_remove:
@@ -322,7 +411,7 @@ class AutomatonOperation(object):
         Cria um autômato minimizado a partir das marcações feitas
         anteriormente.
         '''
-        # Lista com todos os pores que não foram marcados
+        # Lista com todos os pares que não foram marcados
         no_marked = all_pairs
 
         # Remove pares marcados, resultando em uma lista com todos os pares

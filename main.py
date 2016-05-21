@@ -11,7 +11,7 @@ def main():
     fm.reset_log()
 
 	# Le os dados de entrada a partir de um arquivo texto
-    file_content = fm.read_input('input3')
+    file_content = fm.read_input('inputs/input6')
     # print(file_content)
 
     states = file_content[0]
@@ -23,12 +23,26 @@ def main():
     # Criando o autômato inicial
     automaton = Automaton(states, events, initial_state, marked_states, transitions)
 
+    # Le os dados de entrada a partir de um arquivo texto
+    file_content = fm.read_input('inputs/input7')
+    # print(file_content)
+
+    states = file_content[0]
+    events = file_content[1]
+    initial_state = file_content[2]
+    marked_states = file_content[3]
+    transitions = file_content[4:]
+
+    # Criando o autômato inicial
+    automaton_2 = Automaton(states, events, initial_state, marked_states, transitions)
+
     # Instanciando classe em que serão feitas as operações no autômato
     aut = AutomatonOperation(automaton)
 
-    print('AUTOMATO ORIGINAL:')
-    print(automaton)
+    # print('AUTOMATO ORIGINAL:')
+    # print(automaton)
     # automaton.draw('Original')
+    # automaton_2.draw('Original')
 
     # print('AUTOMATO ACESSIVEL:')
     # print(aut.accessibility())
@@ -41,7 +55,8 @@ def main():
     # aut.co_accessibility().draw('Co-acessibilidade')
     # aut.trim().draw('Trim')
     # aut.total().draw('Total')
-    aut.minimization().draw('Minimizacao')
+    # aut.minimization().draw('Minimizacao')
+    aut.product_composition(automaton_2).draw('Composição_por_produto')
 
 
 if __name__ == '__main__':
