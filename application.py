@@ -3,12 +3,14 @@
 
 import tkinter as tk
 import tkinter.ttk as ttk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from automaton import *
+from automaton_operation import *
 from tab import *
+from file_manager import *
 
 class Application(tk.Frame):
-    """docstring for Application."""
+    """Classe responsavel pela exibicao da interface grafica."""
 
     def __init__(self, master = None):
         """Construtor da classe Application."""
@@ -17,7 +19,8 @@ class Application(tk.Frame):
         self.parent.title('FSM')
         self.grid(column = 1, row = 1, sticky = tk.NW)
 
-        self.opened_files = []
+        self.opened_tabs = [] # Lista de abas abertas
+        self.opened_files = [] # Lista de arquivos abertos
 
         self.create_widgets()
 
@@ -65,13 +68,16 @@ class Application(tk.Frame):
 
     def create_menubar(self):
         """Cria a barra de menus."""
+        # Define opcoes para dialogo de selecao de arquivo
         self.file_opt = options = {}
         self.file_opt['filetypes'] = [('arquivos fsm', '.fsm')]
         self.file_opt['title'] = 'Selecione um arquivo'
 
+        # Configura a barra de menus
         self.menubar = tk.Menu(self.parent)
         self.parent.config(menu = self.menubar)
 
+        # Adiciona os elementos na barra de menus
         self.file_menu = tk.Menu(self.menubar, tearoff=0)
         self.file_menu.add_command(label = 'Novo automato')
         self.file_menu.add_command(label = 'Abrir automato', command = self.select_file)
@@ -88,7 +94,8 @@ class Application(tk.Frame):
         self.afn2afd_button.pack()
 
         # Botao para calculo da Acessibilidade
-        self.accessibility_button = tk.Button(self.buttons_frame, text = 'Acessibilidade')
+        self.accessibility_button = tk.Button(self.buttons_frame,
+            text = 'Acessibilidade', command = self.op_accessibility)
         self.stylize_button(self.accessibility_button)
         self.accessibility_button.pack()
 
@@ -118,20 +125,6 @@ class Application(tk.Frame):
         self.minimization_button.pack()
 
 
-    def select_file(self):
-        """Abre caixa de dialogo para selecao do arquivo."""
-        file_name = filedialog.askopenfilename(**self.file_opt)
-        if file_name:
-            if file_name in self.opened_files:
-                index = self.opened_files.index(file_name)
-                self.tabbed_frame.select(index)
-            else:
-                tab = Tab(file_name, self.tabbed_frame)
-                self.add_tab(tab)
-                self.opened_files.append(file_name)
-
-
-
     def stylize_button(self, button):
         """Aplica a estilizacao aos botoes."""
         BUTTON_WIDTH = '20'
@@ -140,9 +133,61 @@ class Application(tk.Frame):
         button['height'] = BUTTON_HEIGHT
 
 
+    ###########################################################################
+    # Acoes dos widgets
+    ###########################################################################
+
+    def select_file(self):
+        """Abre caixa de dialogo para selecao do arquivo."""
+        file_path = filedialog.askopenfilename(**self.file_opt)
+        if file_path:
+            # Verifica se o arquivo ja esta aberto
+            if file_path in self.opened_files:
+                self.tabbed_frame.select(self.opened_files.index(file_path))
+                return
+
+            automaton = self.open_file(file_path)
+
+            tab = Tab(os.path.basename(file_path), automaton, self.tabbed_frame)
+            self.add_tab(tab)
+            self.opened_tabs.append(tab)
+            self.opened_files.append(file_path)
+
+
+    def open_file(self, file_path):
+        """Abre o arquivo e constroi o automato."""
+        fm = FileManager()
+        file_content = fm.read_input(file_path)
+
+        states = file_content[0]
+        events = file_content[1]
+        initial_state = file_content[2]
+        marked_states = file_content[3]
+        transitions = file_content[4:]
+
+        automaton = Automaton(states, events, initial_state, marked_states, transitions)
+        return automaton
+
+
     def exit(self):
         """Encerra a execucao do programa."""
         self.parent.destroy()
+
+
+    def op_accessibility(self):
+        print('Selecionada operacao de Acessibilidade.')
+        if self.tabbed_frame.index('end') == 0:
+            messagebox.showerror('Erro', 'Não há nenhum autômato aberto.')
+        else:
+            selected_tab_index = self.tabbed_frame.index('current')
+            selected_tab = self.opened_tabs[selected_tab_index]
+            automaton = selected_tab.get_automaton()
+            aut_op = AutomatonOperation(automaton)
+            access_aut = aut_op.accessibility()
+            access_aut_name = 'accessible_' + selected_tab.get_file_name()
+            tab = Tab(access_aut_name, access_aut, self.tabbed_frame)
+            self.add_tab(tab)
+
 
 if __name__ == '__main__':
     root = tk.Tk()

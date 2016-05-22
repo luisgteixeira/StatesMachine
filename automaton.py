@@ -56,9 +56,8 @@ class Automaton(object):
 
         return no_str
 
-    def draw(self, name):
+    def draw(self, name, output_dir):
         # Cria grafo direcionado e define o estilo padrao dos nos
-        self.OUTPUT_DIR = 'output'
         dot = Digraph(name = name)
         dot.graph_attr['rankdir'] = 'LR'
         dot.graph_attr['pad'] = '0.5,0.5'
@@ -98,13 +97,13 @@ class Automaton(object):
                     dot.edge(state_label, edge, label = event)
 
         # Verifica se o diretoria output existe, caso nao exista ele e criado
-        if not os.path.exists(self.OUTPUT_DIR) or not os.path.isdir(self.OUTPUT_DIR):
-            os.mkdir(self.OUTPUT_DIR)
+        if not os.path.exists(output_dir) or not os.path.isdir(output_dir):
+            os.mkdir(output_dir)
 
         # Renderiza a imagem do automato
-        dot.render(self.OUTPUT_DIR + os.sep + name)
+        dot.render(output_dir + os.sep + name)
 
         # Remove os arquivos desnecessarios apos renderizacao
-        os.remove(self.OUTPUT_DIR + os.sep + name)
+        os.remove(output_dir + os.sep + name)
 
         # os.system('shotwell ' + self.OUTPUT_DIR + os.sep + name + '.png')

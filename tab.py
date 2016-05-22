@@ -3,42 +3,30 @@
 
 import tkinter as tk
 import tkinter.ttk as ttk
-from file_manager import *
 from automaton import *
 import os.path
 import os
 from PIL import ImageTk, Image
 
 class Tab(tk.Frame):
-    """docstring for Tab"""
-    def __init__(self, file_path, master = None):
+    """Classe que comporta o conteudo de uma aba da interface."""
+
+    def __init__(self, file_name, automaton, master = None):
+        """Construtor da classe tab."""
         tk.Frame.__init__(self, master)
         self.parent = master
-        self.file_path = file_path
-        self.open_file()
+        self.file_name = file_name
+        self.automaton = automaton
 
         self.create_widgets()
 
         self.pack()
 
-    def open_file(self):
-        fm = FileManager()
-        file_content = fm.read_input(self.file_path)
-
-        states = file_content[0]
-        events = file_content[1]
-        initial_state = file_content[2]
-        marked_states = file_content[3]
-        transitions = file_content[4:]
-
-        self.file_name = os.path.basename(self.file_path)
-
-        self.automaton = Automaton(states, events, initial_state, marked_states, transitions)
-        self.automaton.draw(self.file_name)
-
 
     def create_widgets(self):
+        """Carrega e exibe a imagem."""
         self.OUTPUT_DIR = 'output'
+        self.automaton.draw(self.file_name, self.OUTPUT_DIR)
         image_path = self.OUTPUT_DIR + os.sep + self.file_name + ".png"
         self.image = ImageTk.PhotoImage(Image.open(image_path).convert("RGB"))
         label_image = tk.Label(self, image = self.image)
@@ -46,7 +34,10 @@ class Tab(tk.Frame):
 
 
     def get_file_name(self):
+        """"""
         return self.file_name
 
-    def get_file_path(self):
-        return self.file_path
+
+    def get_automaton(self):
+        """"""
+        return self.automaton
