@@ -100,12 +100,14 @@ class Application(tk.Frame):
         self.accessibility_button.pack()
 
         # Botao para o calculo da Co-acessibilidade
-        self.co_accessibility_button = tk.Button(self.buttons_frame, text = 'Co-acessibilidade')
+        self.co_accessibility_button = tk.Button(self.buttons_frame,
+            text = 'Co-acessibilidade', command = self.op_co_accessibility)
         self.stylize_button(self.co_accessibility_button)
         self.co_accessibility_button.pack()
 
         # Botao para o calculo do Trim
-        self.trim_button = tk.Button(self.buttons_frame, text = 'Trim')
+        self.trim_button = tk.Button(self.buttons_frame,
+            text = 'Trim', command = self.op_trim)
         self.stylize_button(self.trim_button)
         self.trim_button.pack()
 
@@ -120,7 +122,8 @@ class Application(tk.Frame):
         self.product_button.pack()
 
         # Botao para o calculo da minimizacao
-        self.minimization_button = tk.Button(self.buttons_frame, text = 'Minimização')
+        self.minimization_button = tk.Button(self.buttons_frame,
+            text = 'Minimização', command = self.op_minimization)
         self.stylize_button(self.minimization_button)
         self.minimization_button.pack()
 
@@ -175,6 +178,7 @@ class Application(tk.Frame):
 
 
     def op_accessibility(self):
+        """"""
         print('Selecionada operacao de Acessibilidade.')
         if self.tabbed_frame.index('end') == 0:
             messagebox.showerror('Erro', 'Não há nenhum autômato aberto.')
@@ -186,6 +190,52 @@ class Application(tk.Frame):
             access_aut = aut_op.accessibility()
             access_aut_name = 'accessible_' + selected_tab.get_file_name()
             tab = Tab(access_aut_name, access_aut, self.tabbed_frame)
+            self.add_tab(tab)
+
+
+    def op_co_accessibility(self):
+        """"""
+        print('Selecionada operacao de Co-cessibilidade.')
+        if self.tabbed_frame.index('end') == 0:
+            messagebox.showerror('Erro', 'Não há nenhum autômato aberto.')
+        else:
+            selected_tab_index = self.tabbed_frame.index('current')
+            selected_tab = self.opened_tabs[selected_tab_index]
+            automaton = selected_tab.get_automaton()
+            aut_op = AutomatonOperation(automaton)
+            co_access_aut = aut_op.co_accessibility()
+            co_access_aut_name = 'co_accessible_' + selected_tab.get_file_name()
+            tab = Tab(co_access_aut_name, co_access_aut, self.tabbed_frame)
+            self.add_tab(tab)
+
+
+    def op_trim(self):
+        print('Selecionada operacao de Trim.')
+        if self.tabbed_frame.index('end') == 0:
+            messagebox.showerror('Erro', 'Não há nenhum autômato aberto.')
+        else:
+            selected_tab_index = self.tabbed_frame.index('current')
+            selected_tab = self.opened_tabs[selected_tab_index]
+            automaton = selected_tab.get_automaton()
+            aut_op = AutomatonOperation(automaton)
+            trim_aut = aut_op.trim()
+            trim_aut_name = 'trim_' + selected_tab.get_file_name()
+            tab = Tab(trim_aut_name, trim_aut, self.tabbed_frame)
+            self.add_tab(tab)
+
+
+    def op_minimization(self):
+        print('Selecionada operacao de Minimizacao.')
+        if self.tabbed_frame.index('end') == 0:
+            messagebox.showerror('Erro', 'Não há nenhum autômato aberto.')
+        else:
+            selected_tab_index = self.tabbed_frame.index('current')
+            selected_tab = self.opened_tabs[selected_tab_index]
+            automaton = selected_tab.get_automaton()
+            aut_op = AutomatonOperation(automaton)
+            min_aut = aut_op.minimization()
+            min_aut_name = 'trim_' + selected_tab.get_file_name()
+            tab = Tab(min_aut_name, min_aut, self.tabbed_frame)
             self.add_tab(tab)
 
 
