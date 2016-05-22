@@ -39,10 +39,14 @@ class Tab(tk.Frame):
 
     def create_widgets(self):
         self.OUTPUT_DIR = 'output'
-        self.image = ImageTk.PhotoImage(Image.open(self.OUTPUT_DIR + os.sep + self.file_name + ".png").convert("RGB"))
+        image_path = self.OUTPUT_DIR + os.sep + self.file_name + ".png"
+        self.image = ImageTk.PhotoImage(Image.open(image_path).convert("RGB"))
         label_image = tk.Label(self, image = self.image)
         label_image.pack()
 
 
     def get_file_name(self):
         return self.file_name
+
+    def get_file_path(self):
+        return self.file_path

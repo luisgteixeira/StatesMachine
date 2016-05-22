@@ -11,17 +11,19 @@ class Application(tk.Frame):
     """docstring for Application."""
 
     def __init__(self, master = None):
-        """"""
+        """Construtor da classe Application."""
         tk.Frame.__init__(self, master)
         self.parent = master
         self.parent.title('FSM')
         self.grid(column = 1, row = 1, sticky = tk.NW)
 
+        self.opened_files = []
+
         self.create_widgets()
 
 
     def create_widgets(self):
-        """"""
+        """Cria todos os widgets da interface."""
         # Cria barra de menus
         self.create_menubar()
 
@@ -33,19 +35,21 @@ class Application(tk.Frame):
 
 
     def create_tabbed_frame(self):
-        """"""
+        """Cria o frame principal, onde sao exibidos os automatos."""
         self.tabbed_frame = ttk.Notebook(self, padding = '5 20 5 5')
 
 
     def add_tab(self, tab):
-        """"""
-        if len(self.tabbed_frame.tabs()) == 0:
+        """Adiciona uma aba ao frame principal."""
+        if self.tabbed_frame.index('end') == 0:
             self.tabbed_frame.grid(column = 2, row = 1, sticky = tk.N)
         self.tabbed_frame.add(tab, text = tab.get_file_name())
+        tab_id = self.tabbed_frame.index('end') - 1
+        self.tabbed_frame.select(tab_id)
 
 
     def create_buttons_frame(self):
-        """"""
+        """Cria o frame que abriga os botoes de operacoes."""
         self.tabbed_buttons_frame = ttk.Notebook(self, padding = '5 20 5 5')
 
         self.buttons_frame = tk.Frame(self.tabbed_buttons_frame)
@@ -60,7 +64,7 @@ class Application(tk.Frame):
 
 
     def create_menubar(self):
-        """"""
+        """Cria a barra de menus."""
         self.file_opt = options = {}
         self.file_opt['filetypes'] = [('arquivos fsm', '.fsm')]
         self.file_opt['title'] = 'Selecione um arquivo'
@@ -77,7 +81,7 @@ class Application(tk.Frame):
 
 
     def create_buttons(self):
-        """"""
+        """Cria os botoes de operacoes."""
         # Botao para conversao AFN -> AFD
         self.afn2afd_button = tk.Button(self.buttons_frame, text = 'AFN -> AFD')
         self.stylize_button(self.afn2afd_button)
@@ -115,11 +119,16 @@ class Application(tk.Frame):
 
 
     def select_file(self):
-        """Abre caixa de dialogo para selecao do arquivo"""
+        """Abre caixa de dialogo para selecao do arquivo."""
         file_name = filedialog.askopenfilename(**self.file_opt)
         if file_name:
-            tab = Tab(file_name, self.tabbed_frame)
-            self.add_tab(tab)
+            if file_name in self.opened_files:
+                index = self.opened_files.index(file_name)
+                self.tabbed_frame.select(index)
+            else:
+                tab = Tab(file_name, self.tabbed_frame)
+                self.add_tab(tab)
+                self.opened_files.append(file_name)
 
 
 
@@ -132,7 +141,7 @@ class Application(tk.Frame):
 
 
     def exit(self):
-        """"""
+        """Encerra a execucao do programa."""
         self.parent.destroy()
 
 if __name__ == '__main__':
