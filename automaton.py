@@ -5,6 +5,7 @@ from state import *
 from graphviz import Digraph
 import os
 import os.path
+from file_manager import *
 
 class Automaton(object):
     """docstring for """
@@ -33,6 +34,7 @@ class Automaton(object):
         # correspondente
         self.split_transitions(transitions)
 
+
     def split_transitions(self, transitions):
         """Separa a string em várias transições."""
         for i,trans in enumerate(transitions):
@@ -55,6 +57,7 @@ class Automaton(object):
         no_str += "--------------------------------------------------\n"
 
         return no_str
+
 
     def draw(self, name, output_dir):
         # Cria grafo direcionado e define o estilo padrao dos nos
