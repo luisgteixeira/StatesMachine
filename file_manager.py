@@ -33,6 +33,18 @@ class FileManager(object):
 		return "[" + asctime() + "]"
 
 
+	def write_automaton(self, automaton_str, file_path):
+		""""""
+		try:
+			file_handler = open(file_path, 'w')
+			file_handler.write(automaton_str)
+		except Exception as e:
+			print('Erro ao salvar automato.')
+			raise
+		else:
+			file_handler.close()
+
+
 	def read_input(self, input_file):
 		"""
 		Le o arquivo de entrada. Retorna uma lista onde cada elemento
