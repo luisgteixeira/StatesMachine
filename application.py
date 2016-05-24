@@ -39,6 +39,13 @@ class Application(tk.Frame):
     def create_tabbed_frame(self):
         """Cria o frame principal, onde sao exibidos os automatos."""
         self.tabbed_frame = ttk.Notebook(self, padding = '5 20 5 5')
+        self.create_context_menu()
+        self.tabbed_frame.bind('<Button-3>', self.show_context_menu)
+
+
+    def create_context_menu(self):
+        self.context_menu = tk.Menu(self.tabbed_frame, tearoff=0)
+        self.context_menu.add_command(label = 'Fechar', command = self.close_tab)
 
 
     def add_tab(self, tab):
@@ -171,12 +178,20 @@ class Application(tk.Frame):
         return automaton
 
 
+    def show_context_menu(self, event):
+        print('Exibir menu de contexto.')
+        self.context_menu.post(event.x_root, event.y_root)
+
+
     def exit(self):
         """Encerra a execucao do programa."""
-        self.parent.destroy()
+        answer = messagebox.askyesno(message = 'Deseja encerrar o programa?', title = 'Sair')
+        if answer:
+            self.parent.destroy()
 
 
     def execute_operation(self, operation):
+        """"""
         if self.tabbed_frame.index('end') == 0:
             messagebox.showerror('Erro', 'Não há nenhum autômato aberto.')
         else:
@@ -202,6 +217,14 @@ class Application(tk.Frame):
             self.add_tab(tab)
 
 
+    def close_tab(self):
+        selected_tab_index = self.tabbed_frame.index('current')
+        print('Fechar aba:', selected_tab_index)
+        self.tabbed_frame.forget(selected_tab_index)
+        if self.tabbed_frame.index('end') == 0:
+            self.tabbed_frame.destroy()
+            self.create_tabbed_frame()
+
 
     def op_accessibility(self):
         """"""
@@ -214,10 +237,12 @@ class Application(tk.Frame):
 
 
     def op_trim(self):
+        """"""
         self.execute_operation('trim')
 
 
     def op_minimization(self):
+        """"""
         self.execute_operation('minimization')
 
 

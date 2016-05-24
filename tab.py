@@ -29,7 +29,7 @@ class Tab(tk.Frame):
         image_path = self.OUTPUT_DIR + os.sep + self.get_file_name() + ".png"
         self.image = ImageTk.PhotoImage(Image.open(image_path).convert("RGB"))
         label_image = tk.Label(self, image = self.image)
-        label_image.pack()
+        label_image.pack(side = 'left') # melhor substituir por grid
 
 
     def set_file_path(self, file_path):
