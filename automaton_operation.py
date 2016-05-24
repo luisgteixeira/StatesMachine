@@ -253,16 +253,13 @@ class AutomatonOperation(object):
                         # Auxilia no posicionamento certo do par da transição
                         # pois o dicionário em Python não garante a posição
                         # correta
-                        # if states.index(state_i) < states.index(state_j):
                         pair_xe_ye = [state_i, state_j]
-                        pair_xe_ye1 = state_i + ', ' + state_j
+                        pair_xe_ye.sort()
+                        pair_xe_ye1 = ', '.join(pair_xe_ye)
+
                         pair_x_y = [states[i], states[j]]
-                        pair_x_y1 = states[i] + ', ' + states[j]
-                        # else:
-                        #     pair_xe_ye = [state_j, state_i]
-                        #     pair_xe_ye1 = state_j + ', ' + state_i
-                        #     pair_x_y = [states[j], states[i]]
-                        #     pair_x_y1 = states[j] + ', ' + states[i]
+                        pair_x_y.sort()
+                        pair_x_y1 = ', '.join(pair_x_y)
 
 
                         # Se o par de estados alcançados já for marcado
