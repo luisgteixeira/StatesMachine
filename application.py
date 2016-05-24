@@ -86,7 +86,7 @@ class Application(tk.Frame):
 
         # Adiciona os elementos na barra de menus
         self.file_menu = tk.Menu(self.menubar, tearoff=0)
-        self.file_menu.add_command(label = 'Novo automato')
+        self.file_menu.add_command(label = 'Salvar automato', command = self.save_file)
         self.file_menu.add_command(label = 'Abrir automato', command = self.select_file)
         self.file_menu.add_separator()
         self.file_menu.add_command(label = 'Sair', command = self.exit)
@@ -224,6 +224,22 @@ class Application(tk.Frame):
         if self.tabbed_frame.index('end') == 0:
             self.tabbed_frame.destroy()
             self.create_tabbed_frame()
+
+
+    def save_file(self):
+        """"""
+        if self.tabbed_frame.index('end') == 0:
+            messagebox.showerror('Erro', 'Não há nenhum autômato aberto.')
+        else:
+
+            file_path = filedialog.asksaveasfilename()
+            if file_path != '':
+                if not file_path.endswith('.fsm'):
+                    file_path += '.fsm'
+                selected_tab_index = self.tabbed_frame.index('current')
+                selected_tab = self.opened_tabs[selected_tab_index]
+                automaton = selected_tab.get_automaton()
+                automaton.save(file_path)
 
 
     def op_accessibility(self):

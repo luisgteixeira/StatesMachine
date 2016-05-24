@@ -6,6 +6,7 @@ from graphviz import Digraph
 import os
 import os.path
 from file_manager import *
+from copy import deepcopy
 
 class Automaton(object):
     """docstring for """
@@ -57,6 +58,35 @@ class Automaton(object):
         no_str += "--------------------------------------------------\n"
 
         return no_str
+
+
+    def save(self, file_path):
+        states = list(self.states.keys())
+        states.sort()
+        states = ','.join(states)
+
+        events = deepcopy(self.events)
+        events.sort()
+        events = ','.join(events)
+
+        initial_state = self.initial_state
+
+        marked_states = deepcopy(self.marked_states)
+        marked_states.sort()
+        marked_states = ','.join(marked_states)
+
+        final_content = states + '\n' + events + '\n'
+        final_content += initial_state + '\n' + marked_states
+
+        for state_label, state in self.states.items():
+            for event, dest_states_list in state.edges.items():
+                for edge in dest_states_list:
+                    final_content += '\n'
+                    final_content += state_label + '-' + event + '-' + edge
+
+        print(final_content)
+        fm = FileManager()
+        fm.write_automaton(final_content, file_path)
 
 
     def draw(self, name, output_dir):

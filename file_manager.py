@@ -43,6 +43,7 @@ class FileManager(object):
 			raise
 		else:
 			file_handler.close()
+			print('Automato salvo com sucesso.')
 
 
 	def read_input(self, input_file):
