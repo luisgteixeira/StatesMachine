@@ -370,6 +370,93 @@ class AutomatonOperation(object):
 
         return automaton
 
+
+    def parallel_composition(self, automaton_1, automaton_2=[]):
+        # Cópia do autômato original
+        if not automaton_2:
+            automaton_2 = copy.deepcopy(self.automaton)
+        else:
+            automaton_2 = copy.deepcopy(automaton_2)
+
+        # Novos estados a serem criados
+        new_states = {}
+        # Estados que serão os novos estados finais
+        marked_states = []
+        # Lista com as transições do autômato
+        transitions = []
+
+        for key_1 in automaton_1.states:
+            for key_2 in automaton_2.states:
+                # Label do novo estado a ser criado
+                new_st = key_1 + ';' + key_2
+
+                # Estado será inicial quando os dois estados que o origina forem
+                # estados iniciais
+                if key_1 == automaton_1.initial_state:
+                    if key_2 == automaton_2.initial_state:
+                        initial_state = new_st
+
+                # Estado será final quando os dois estados que o origina forem
+                # estados finais
+                if key_1 in automaton_1.marked_states:
+                    if key_2 in automaton_2.marked_states:
+                        marked_states.append(new_st)
+
+                # Criando lista com união dos eventos do automaton_1 e do
+                # automaton_2
+                all_events = automaton_1.events
+                for event in automaton_2.events:
+                    # Se é o evento não existia no alfabeto do automaton_1,
+                    # então adiciona na lista
+                    if not event in all_events:
+                        all_events.append(event)
+
+                for event in all_events:
+                    transition_1 = []
+                    transition_2 = []
+                    # Retorna transição para determinado evento, se o evento
+                    # for do alfabeto do autômato
+                    if event in automaton_1.states[key_1].edges.keys():
+                        transition_1 = automaton_1.states[key_1].edges[event][0]
+                    if event in automaton_2.states[key_2].edges.keys():
+                        transition_2 = automaton_2.states[key_2].edges[event][0]
+
+                    # Se não houver transição para determinado evento, será
+                    # utilizado o próprio estado para criar a nova transição
+                    if transition_1:
+                        new_trans = transition_1
+                    elif not event in automaton_1.events:
+                        new_trans = key_1
+                    else:
+                        continue;
+
+                    if transition_2:
+                        new_trans += ';' + transition_2
+                    elif (transition_1) and (not event in automaton_2.events):
+                        new_trans += ';' + key_2
+                    else:
+                        continue
+
+                    # É adicionado ao dicionário o novo estado com a sua nova
+                    # transição
+                    new_states[new_st] = [new_trans]
+
+                    transitions.append(new_st + '-' + event + '-' + new_trans)
+
+        # Criando uma string com os eventos separados por vírgula
+        all_events = ','.join(all_events)
+        # Criando uma string com os novos estados separados por vírgula
+        new_states = ','.join(new_states.keys())
+        # Criando uma string com os estados finais separados por vírgula
+        marked_states = ','.join(marked_states)
+
+        # Criando o autômato inicial
+        automaton = Automaton(new_states, all_events, initial_state, marked_states, transitions)
+        automaton = self.accessibility(automaton)
+
+        return automaton
+
+
     def create_automaton(self, labels_list, automaton=[]):
         '''
         Cria um autômato similar ao autômato original mas apenas com os estados
