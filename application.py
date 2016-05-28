@@ -181,7 +181,6 @@ class Application(tk.Frame):
 
     def show_context_menu(self, event):
         """Exibe o menu de contexto."""
-        print('Exibir menu de contexto.')
         self.context_menu.post(event.x_root, event.y_root)
 
 
@@ -224,7 +223,6 @@ class Application(tk.Frame):
     def close_tab(self):
         """Fecha a aba selecionada."""
         selected_tab_index = self.tabbed_frame.index('current')
-        print('Fechar aba:', selected_tab_index)
         self.tabbed_frame.forget(selected_tab_index)
         self.opened_tabs.pop(selected_tab_index)
         if self.tabbed_frame.index('end') == 0:

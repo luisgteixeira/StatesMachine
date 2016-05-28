@@ -29,14 +29,14 @@ class Tab(tk.Frame):
         image_path = self.OUTPUT_DIR + os.sep + self.get_file_name() + ".png"
         self.image = ImageTk.PhotoImage(Image.open(image_path).convert("RGB"))
         label_image = tk.Label(self, image = self.image)
-        label_image.pack(side = 'left') # melhor substituir por grid
+        label_image.grid(column = 1, row = 1, sticky = tk.NW) # melhor substituir por grid
 
         self.create_edition_frame()
 
 
     def create_edition_frame(self):
         self.edition_frame = tk.Frame(self)
-        self.edition_frame.pack()
+        self.edition_frame.grid(column = 2, row = 1, sticky = tk.NW)
 
         self.automaton_text = tk.Text(self.edition_frame, width = 25)
         self.automaton_text.insert(tk.END, self.automaton.to_file_format())

@@ -580,114 +580,147 @@ class AutomatonOperation(object):
 
 
 
+    def print_transitions_table(self, transitions_table):
+        print('')
+        print('tabela de transicoes')
+        for key, value in transitions_table.items():
+            print(key, ':', value)
+        print('')
 
 
 
 
     def afn2afd(self, automaton=[]):
+        """"""
         # Cópia do autômato original
         if not automaton:
             automaton = copy.deepcopy(self.automaton)
         else:
             automaton = copy.deepcopy(automaton)
 
-        print(automaton)
-
+        # Tabela de transicoes
         transitions_table = {}
 
         # Armazena os estados originais do automato
         original_states = list(automaton.states.keys())
+        original_states.sort()
 
-        new_states = []      # Amazena os novos estados do automato
+        new_states = [] # Amazena os novos estados do automato
+        new_states_queue = []
 
-        events = []
+        events = []     # Armazena os eventos
+
+        has_new_state = False
+
 
         # state_label = rotulo do estado, state = objeto estado
         for state_label, state in automaton.states.items():
             transitions_table[state_label] = {}
             # event = rotulo do evento, states_dest = lista de destinos pra o evento
             for event, states_dest in state.edges.items():
+                # Cria lista de eventos
                 if event not in events:
                     events.append(event)
 
+                # Adiciona transicoes na tabela para os estados originais
                 transitions_table[state_label][event] = states_dest
 
+                # Cria os novos estados
                 new_state = ';'.join(states_dest)
-                if new_state not in transitions_table.keys():
+                if new_state not in original_states:
+                    # Adiciona os estados gerados na tabela de transicoes e
+                    # na lista de novos estados
                     transitions_table[new_state] = {}
                     new_states.append(new_state)
+                    new_states_queue.append(new_state)
 
 
-        for new_state in new_states:
+        # Enquanto houver novos estados na fila
+        while new_states_queue:
+            new_state = new_states_queue[0]
             splited_states = new_state.split(';')
+
+            # print(new_state)
 
             for event in events:
                 destinations = []
 
                 for sp_state in splited_states:
-
                     if event in transitions_table[sp_state].keys():
                         transitions = transitions_table[sp_state][event]
-                        if transitions:
-                            destinations += transitions
-                            destinations = list(set(destinations))
-                            destinations.sort()
+                        destinations += transitions
+                        destinations = list(set(destinations))
+                        destinations.sort()
 
-                    if len(destinations) > 0:
-                        transitions_table[new_state][event] = destinations
+                if len(destinations) > 0:
+                    transitions_table[new_state][event] = destinations
+                    dest_str = ';'.join(destinations)
+
+                    if dest_str not in new_states and dest_str not in original_states:
+                        new_states.append(dest_str)
+                        new_states_queue.append(dest_str)
+                        transitions_table[dest_str] = {}
+
+            # print('new state:', new_states_queue[0])
+            new_states_queue.pop(0)
 
 
+        # self.print_transitions_table(transitions_table)
+
+
+        # Transforma as listas de estados de destino em strings com estados
+        # separados por ponto-e-virgula
         for state, transitions in transitions_table.items():
             for event, dest_states in transitions.items():
                 transitions_table[state][event] = ';'.join(dest_states)
 
+        # self.print_transitions_table(transitions_table)
 
         final_temp_states = original_states + new_states
-        final_states = []
 
+        removed_state = False
 
-        # Obtem os estados que devem parmanecer ao final
-        for final_temp_state in final_temp_states:
-            temp_states = []
-            for transitions in transitions_table.values():
-                for dest_state in transitions.values():
-                    temp_states.append(dest_state)
+        # Remove os estados inalcansaveis
+        while True:
+            for final_temp_state in final_temp_states:
+                temp_states = []
 
-            temp_states = list(set(temp_states))
+                for event in transitions_table.values():
+                    for dest_state in event.values():
+                        temp_states.append(dest_state)
 
-            if final_temp_state in temp_states:
-                final_states.append(final_temp_state)
+                temp_states = list(set(temp_states))
+
+                if final_temp_state not in temp_states:
+                    transitions_table.pop(final_temp_state)
+                    removed_state == True
+
+            if not removed_state:
+                break
 
 
         # Obtem os estados marcados
         marked_states = []
-        for final_state in final_states:
+        for final_state in transitions_table.keys():
             for mk in automaton.marked_states:
                 if final_state.__contains__(mk):
                     marked_states.append(final_state)
 
 
-        # Remove os estados inalcansaveis
-        for final_temp_state in final_temp_states:
-            if final_temp_state not in final_states:
-                transitions_table.pop(final_temp_state)
 
-
+        # Monta a lista de transicoes para instanciar o automato resultante
         transitions = []
         for state_label, state_transitions in transitions_table.items():
-            print(state_label)
             for event, dest_states in state_transitions.items():
                 transitions.append(state_label + '-' + event + '-' + dest_states)
 
-        print(transitions)
-
-        for key, value in transitions_table.items():
-            print(key, ':', value)
 
 
 
 
-        result_automaton = Automaton(','.join(final_states),
+
+        # Instancia o automato resultante
+        result_automaton = Automaton(','.join(transitions_table.keys()),
                                      ','.join(automaton.events),
                                      automaton.initial_state,
                                      ','.join(marked_states),
@@ -720,5 +753,4 @@ class AutomatonOperation(object):
 
 
 
-
-# ggfg
+#
