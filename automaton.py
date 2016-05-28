@@ -60,7 +60,7 @@ class Automaton(object):
         return no_str
 
 
-    def save(self, file_path):
+    def to_file_format(self):
         states = list(self.states.keys())
         states.sort()
         states = ','.join(states)
@@ -84,9 +84,7 @@ class Automaton(object):
                     final_content += '\n'
                     final_content += state_label + '-' + event + '-' + edge
 
-        print(final_content)
-        fm = FileManager()
-        fm.write_automaton(final_content, file_path)
+        return final_content
 
 
     def draw(self, name, output_dir):

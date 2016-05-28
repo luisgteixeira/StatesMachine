@@ -21,8 +21,11 @@ class State(object):
         return state_str
 
     def add_edge(self, event, state):
+        """Adiciona trasicoes ao automato."""
         # Evento já existe
         if event in self.edges:
             self.edges[event].append(state)
         else:
             self.edges[event] = [state]
+
+        self.edges[event].sort()

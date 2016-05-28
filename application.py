@@ -96,7 +96,8 @@ class Application(tk.Frame):
     def create_buttons(self):
         """Cria os botoes de operacoes."""
         # Botao para conversao AFN -> AFD
-        self.afn2afd_button = tk.Button(self.buttons_frame, text = 'AFN -> AFD')
+        self.afn2afd_button = tk.Button(self.buttons_frame,
+            text = 'AFN -> AFD', command = self.op_afn2afd)
         self.stylize_button(self.afn2afd_button)
         self.afn2afd_button.pack()
 
@@ -179,6 +180,7 @@ class Application(tk.Frame):
 
 
     def show_context_menu(self, event):
+        """Exibe o menu de contexto."""
         print('Exibir menu de contexto.')
         self.context_menu.post(event.x_root, event.y_root)
 
@@ -191,7 +193,7 @@ class Application(tk.Frame):
 
 
     def execute_operation(self, operation):
-        """"""
+        """Executa operacoes com apenas um automato."""
         if self.tabbed_frame.index('end') == 0:
             messagebox.showerror('Erro', 'Não há nenhum autômato aberto.')
         else:
@@ -210,6 +212,8 @@ class Application(tk.Frame):
                 result_automaton = aut_op.co_accessibility()
             elif operation == 'minimization':
                 result_automaton = aut_op.minimization()
+            elif operation == 'afn2afd':
+                result_automaton = aut_op.afn2afd()
             else:
                 print('Operacao invalida.')
 
@@ -218,20 +222,21 @@ class Application(tk.Frame):
 
 
     def close_tab(self):
+        """Fecha a aba selecionada."""
         selected_tab_index = self.tabbed_frame.index('current')
         print('Fechar aba:', selected_tab_index)
         self.tabbed_frame.forget(selected_tab_index)
+        self.opened_tabs.pop(selected_tab_index)
         if self.tabbed_frame.index('end') == 0:
             self.tabbed_frame.destroy()
             self.create_tabbed_frame()
 
 
     def save_file(self):
-        """"""
+        """Obtem o caminho de destino e salva o automato."""
         if self.tabbed_frame.index('end') == 0:
             messagebox.showerror('Erro', 'Não há nenhum autômato aberto.')
         else:
-
             file_path = filedialog.asksaveasfilename()
             if file_path != '':
                 if not file_path.endswith('.fsm'):
@@ -239,27 +244,34 @@ class Application(tk.Frame):
                 selected_tab_index = self.tabbed_frame.index('current')
                 selected_tab = self.opened_tabs[selected_tab_index]
                 automaton = selected_tab.get_automaton()
-                automaton.save(file_path)
+                final_content = automaton.to_file_format()
+
+                fm = FileManager()
+                fm.write_automaton(final_content, file_path)
 
 
     def op_accessibility(self):
-        """"""
+        """Executa a operacao de Acessibilidade."""
         self.execute_operation('accessibility')
 
 
     def op_co_accessibility(self):
-        """"""
+        """Executa a operacao de Co-acessibilidade."""
         self.execute_operation('co_accessibility')
 
 
     def op_trim(self):
-        """"""
+        """Executa a operacao de Trim."""
         self.execute_operation('trim')
 
 
     def op_minimization(self):
-        """"""
+        """Executa a operacao de minimizacao."""
         self.execute_operation('minimization')
+
+    def op_afn2afd(self):
+        """Converte um automato nao-deterministico em deterministico."""
+        self.execute_operation('afn2afd')
 
 
 if __name__ == '__main__':

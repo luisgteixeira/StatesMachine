@@ -575,3 +575,150 @@ class AutomatonOperation(object):
         no_str = str(self.automaton)
 
         return no_str
+
+
+
+
+
+
+
+
+
+    def afn2afd(self, automaton=[]):
+        # Cópia do autômato original
+        if not automaton:
+            automaton = copy.deepcopy(self.automaton)
+        else:
+            automaton = copy.deepcopy(automaton)
+
+        print(automaton)
+
+        transitions_table = {}
+
+        # Armazena os estados originais do automato
+        original_states = list(automaton.states.keys())
+
+        new_states = []      # Amazena os novos estados do automato
+
+        events = []
+
+        # state_label = rotulo do estado, state = objeto estado
+        for state_label, state in automaton.states.items():
+            transitions_table[state_label] = {}
+            # event = rotulo do evento, states_dest = lista de destinos pra o evento
+            for event, states_dest in state.edges.items():
+                if event not in events:
+                    events.append(event)
+
+                transitions_table[state_label][event] = states_dest
+
+                new_state = ';'.join(states_dest)
+                if new_state not in transitions_table.keys():
+                    transitions_table[new_state] = {}
+                    new_states.append(new_state)
+
+
+        for new_state in new_states:
+            splited_states = new_state.split(';')
+
+            for event in events:
+                destinations = []
+
+                for sp_state in splited_states:
+
+                    if event in transitions_table[sp_state].keys():
+                        transitions = transitions_table[sp_state][event]
+                        if transitions:
+                            destinations += transitions
+                            destinations = list(set(destinations))
+                            destinations.sort()
+
+                    if len(destinations) > 0:
+                        transitions_table[new_state][event] = destinations
+
+
+        for state, transitions in transitions_table.items():
+            for event, dest_states in transitions.items():
+                transitions_table[state][event] = ';'.join(dest_states)
+
+
+        final_temp_states = original_states + new_states
+        final_states = []
+
+
+        # Obtem os estados que devem parmanecer ao final
+        for final_temp_state in final_temp_states:
+            temp_states = []
+            for transitions in transitions_table.values():
+                for dest_state in transitions.values():
+                    temp_states.append(dest_state)
+
+            temp_states = list(set(temp_states))
+
+            if final_temp_state in temp_states:
+                final_states.append(final_temp_state)
+
+
+        # Obtem os estados marcados
+        marked_states = []
+        for final_state in final_states:
+            for mk in automaton.marked_states:
+                if final_state.__contains__(mk):
+                    marked_states.append(final_state)
+
+
+        # Remove os estados inalcansaveis
+        for final_temp_state in final_temp_states:
+            if final_temp_state not in final_states:
+                transitions_table.pop(final_temp_state)
+
+
+        transitions = []
+        for state_label, state_transitions in transitions_table.items():
+            print(state_label)
+            for event, dest_states in state_transitions.items():
+                transitions.append(state_label + '-' + event + '-' + dest_states)
+
+        print(transitions)
+
+        for key, value in transitions_table.items():
+            print(key, ':', value)
+
+
+
+
+        result_automaton = Automaton(','.join(final_states),
+                                     ','.join(automaton.events),
+                                     automaton.initial_state,
+                                     ','.join(marked_states),
+                                     transitions)
+        return result_automaton
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ggfg

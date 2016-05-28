@@ -34,7 +34,7 @@ class FileManager(object):
 
 
 	def write_automaton(self, automaton_str, file_path):
-		""""""
+		"""Salva o automato no caminho especificado."""
 		try:
 			file_handler = open(file_path, 'w')
 			file_handler.write(automaton_str)
