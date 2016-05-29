@@ -744,6 +744,7 @@ class AutomatonOperation(object):
 
             to_analyse.pop(0)
 
+        fecho.sort()
         return fecho
 
 
@@ -758,20 +759,89 @@ class AutomatonOperation(object):
 
         # Tabela de transicoes
         transitions_table = {}
-
-        print(automaton)
+        states_queue = []
 
         initial_state = self.fecho_e(automaton, automaton.initial_state)
-        print(initial_state)
+
+        mkd_states = automaton.marked_states # Estados marcados do automato original
+
+        transitions_table[';'.join(initial_state)] = {}
+
+        states_queue.append(';'.join(initial_state))
+
+        events = automaton.events
+        events.remove('*')
+
+        analized_states = []
+
+        while states_queue:
+
+            state = states_queue[0]
+            splited_states = state.split(';')
+
+            analized_states.append(state)
+
+            for event in events:
+                dest_event = []
+                for sp_state in splited_states:
+                    if event in automaton.states[sp_state].edges.keys():
+                        for transition in automaton.states[sp_state].edges[event]:
+                            if transition not in dest_event:
+                                dest_event.append(transition)
+
+                dest_event = list(set(dest_event))
+                dest_event.sort()
+
+                fecho = []
+                if len(dest_event) > 0:
+                    for dest_state in dest_event:
+                        fecho += self.fecho_e(automaton, dest_state)
+
+                    fecho = list(set(fecho))
+                    fecho.sort()
+                    new_state = []
+                    new_state += dest_event
+                    new_state += fecho
+                    new_state = ';'.join(new_state)
+                    transitions_table[state][event] = new_state
+
+                    # print(dest_event, fecho, new_state)
+
+                    if new_state not in analized_states:
+                        states_queue.append(new_state)
+
+                    if new_state not in transitions_table.keys():
+                        transitions_table[new_state] = {}
+                else:
+                    transitions_table[state][event] = state
+
+            states_queue.pop(0)
 
 
+        states = list(transitions_table.keys())
+        marked_states = []
+        for state in states:
+            for mkd_state in mkd_states:
+                if state.__contains__(mkd_state) and state not in marked_states:
+                    marked_states.append(state)
 
 
+        transitions = []
+        for state_label, state_transitions in transitions_table.items():
+            for event, dest_states in state_transitions.items():
+                transitions.append(state_label + '-' + event + '-' + dest_states)
 
 
+        # Instancia o automato resultante
+        result_automaton = Automaton(','.join(states),
+                                     ','.join(events),
+                                     ';'.join(initial_state),
+                                     ','.join(marked_states),
+                                     transitions)
+        return result_automaton
 
         # Retorna o automato recebido temporariamente
-        return automaton
+        # return automaton
 
 
 
@@ -798,8 +868,6 @@ class AutomatonOperation(object):
             automaton = copy.deepcopy(self.automaton)
         else:
             automaton = copy.deepcopy(automaton)
-
-        print(automaton.events)
 
         if '*' in automaton.events:
             return self.afne2afd(automaton)
