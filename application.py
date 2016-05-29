@@ -97,7 +97,7 @@ class Application(tk.Frame):
         """Cria os botoes de operacoes."""
         # Botao para conversao AFN -> AFD
         self.afn2afd_button = tk.Button(self.buttons_frame,
-            text = 'AFN -> AFD', command = self.op_afn2afd)
+            text = 'AFN -> AFD', command = self.op_convertion)
         self.stylize_button(self.afn2afd_button)
         self.afn2afd_button.pack()
 
@@ -211,8 +211,8 @@ class Application(tk.Frame):
                 result_automaton = aut_op.co_accessibility()
             elif operation == 'minimization':
                 result_automaton = aut_op.minimization()
-            elif operation == 'afn2afd':
-                result_automaton = aut_op.afn2afd()
+            elif operation == 'convertion':
+                result_automaton = aut_op.convertion()
             else:
                 print('Operacao invalida.')
 
@@ -267,9 +267,9 @@ class Application(tk.Frame):
         """Executa a operacao de minimizacao."""
         self.execute_operation('minimization')
 
-    def op_afn2afd(self):
+    def op_convertion(self):
         """Converte um automato nao-deterministico em deterministico."""
-        self.execute_operation('afn2afd')
+        self.execute_operation('convertion')
 
 
 if __name__ == '__main__':

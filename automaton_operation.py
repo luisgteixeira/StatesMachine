@@ -730,9 +730,81 @@ class AutomatonOperation(object):
 
 
 
+    def fecho_e(self, automaton, state):
+        """"""
+        to_analyse = [state]
+        fecho = [state]
+
+        while to_analyse:
+            if '*' in automaton.states[to_analyse[0]].edges.keys():
+                for e_accessible_state in automaton.states[to_analyse[0]].edges['*']:
+                    if e_accessible_state not in fecho:
+                        fecho.append(e_accessible_state)
+                        to_analyse.append(e_accessible_state)
+
+            to_analyse.pop(0)
+
+        return fecho
 
 
 
+    def afne2afd(self, automaton=[]):
+        """"""
+        # Cópia do autômato original
+        if not automaton:
+            automaton = copy.deepcopy(self.automaton)
+        else:
+            automaton = copy.deepcopy(automaton)
+
+        # Tabela de transicoes
+        transitions_table = {}
+
+        print(automaton)
+
+        initial_state = self.fecho_e(automaton, automaton.initial_state)
+        print(initial_state)
+
+
+
+
+
+
+
+        # Retorna o automato recebido temporariamente
+        return automaton
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def convertion(self, automaton=[]):
+        """"""
+        # Cópia do autômato original
+        if not automaton:
+            automaton = copy.deepcopy(self.automaton)
+        else:
+            automaton = copy.deepcopy(automaton)
+
+        print(automaton.events)
+
+        if '*' in automaton.events:
+            return self.afne2afd(automaton)
+        else:
+            return self.afn2afd(automaton)
 
 
 
