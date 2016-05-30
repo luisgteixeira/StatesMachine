@@ -802,18 +802,20 @@ class AutomatonOperation(object):
                     new_state = []
                     new_state += dest_event
                     new_state += fecho
+                    new_state = list(set(new_state))
+                    new_state.sort()
                     new_state = ';'.join(new_state)
                     transitions_table[state][event] = new_state
 
-                    # print(dest_event, fecho, new_state)
+                    print(dest_event, fecho, new_state)
 
                     if new_state not in analized_states:
                         states_queue.append(new_state)
 
                     if new_state not in transitions_table.keys():
                         transitions_table[new_state] = {}
-                else:
-                    transitions_table[state][event] = state
+                # else:
+                #     transitions_table[state][event] = state
 
             states_queue.pop(0)
 
@@ -838,6 +840,9 @@ class AutomatonOperation(object):
                                      ';'.join(initial_state),
                                      ','.join(marked_states),
                                      transitions)
+
+        self.print_transitions_table(transitions_table)
+
         return result_automaton
 
         # Retorna o automato recebido temporariamente

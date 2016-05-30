@@ -1,0 +1,12 @@
+p,q,r
+a,b,c,*
+p
+r
+p-*-q
+p-*-r
+p-b-q
+p-c-r
+q-a-p
+q-c-q
+q-b-r
+q-c-p
