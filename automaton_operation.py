@@ -28,7 +28,7 @@ class AutomatonOperation(object):
 
         # Estado inicial sempre será um autômato acessível
         accessible.append(automaton.initial_state)
-
+        # print('acess:', accessible)
         # Pilha para salvar os estados que foram alcançados
         stack = []
 
@@ -37,6 +37,8 @@ class AutomatonOperation(object):
         for i,key in enumerate(initial_state.edges):
             stack += initial_state.edges[key]
 
+        # print('stack:', stack)
+        # print(automaton)
         while stack:
             # Primeiro elemento da pilha
             first = stack.pop()
@@ -307,6 +309,7 @@ class AutomatonOperation(object):
         marked_states = []
         # Lista com as transições do autômato
         transitions = []
+        all_events_aux = []
 
         for key_1 in automaton_1.states:
             for key_2 in automaton_2.states:
@@ -327,7 +330,7 @@ class AutomatonOperation(object):
 
                 # Criando lista com união dos eventos do automaton_1 e do
                 # automaton_2
-                all_events = automaton_1.events
+                all_events = copy.deepcopy(automaton_1.events)
                 for event in automaton_2.events:
                     # Se é o evento não existia no alfabeto do automaton_1,
                     # então adiciona na lista
@@ -340,10 +343,13 @@ class AutomatonOperation(object):
                     if event in automaton_1.states[key_1].edges.keys():
                         transition_1 = automaton_1.states[key_1].edges[event][0]
                     else:
+                        new_states[new_st] = []
                         continue
+
                     if event in automaton_2.states[key_2].edges.keys():
                         transition_2 = automaton_2.states[key_2].edges[event][0]
                     else:
+                        new_states[new_st] = []
                         continue
 
                     # Se não houver transição para determinado evento, será
@@ -357,15 +363,18 @@ class AutomatonOperation(object):
 
                     transitions.append(new_st + '-' + event + '-' + new_trans)
 
+                    if not event in all_events_aux:
+                        all_events_aux.append(event)
+
         # Criando uma string com os eventos separados por vírgula
-        all_events = ','.join(all_events)
+        all_events_aux = ','.join(all_events)
         # Criando uma string com os novos estados separados por vírgula
         new_states = ','.join(new_states.keys())
         # Criando uma string com os estados finais separados por vírgula
         marked_states = ','.join(marked_states)
 
         # Criando o autômato inicial
-        automaton = Automaton(new_states, all_events, initial_state, marked_states, transitions)
+        automaton = Automaton(new_states, all_events_aux, initial_state, marked_states, transitions)
         automaton = self.accessibility(automaton)
 
         return automaton
@@ -384,6 +393,7 @@ class AutomatonOperation(object):
         marked_states = []
         # Lista com as transições do autômato
         transitions = []
+        all_events_aux = []
 
         for key_1 in automaton_1.states:
             for key_2 in automaton_2.states:
@@ -404,7 +414,7 @@ class AutomatonOperation(object):
 
                 # Criando lista com união dos eventos do automaton_1 e do
                 # automaton_2
-                all_events = automaton_1.events
+                all_events = copy.deepcopy(automaton_1.events)
                 for event in automaton_2.events:
                     # Se é o evento não existia no alfabeto do automaton_1,
                     # então adiciona na lista
@@ -421,6 +431,7 @@ class AutomatonOperation(object):
                     if event in automaton_2.states[key_2].edges.keys():
                         transition_2 = automaton_2.states[key_2].edges[event][0]
 
+
                     # Se não houver transição para determinado evento, será
                     # utilizado o próprio estado para criar a nova transição
                     if transition_1:
@@ -428,6 +439,7 @@ class AutomatonOperation(object):
                     elif not event in automaton_1.events:
                         new_trans = key_1
                     else:
+                        new_states[new_st] = []
                         continue;
 
                     if transition_2:
@@ -435,23 +447,27 @@ class AutomatonOperation(object):
                     elif (transition_1) and (not event in automaton_2.events):
                         new_trans += ';' + key_2
                     else:
+                        new_states[new_st] = []
                         continue
 
                     # É adicionado ao dicionário o novo estado com a sua nova
                     # transição
                     new_states[new_st] = [new_trans]
-
                     transitions.append(new_st + '-' + event + '-' + new_trans)
 
+                    if not event in all_events_aux:
+                        all_events_aux.append(event)
+
+
         # Criando uma string com os eventos separados por vírgula
-        all_events = ','.join(all_events)
+        all_events_aux = ','.join(all_events)
         # Criando uma string com os novos estados separados por vírgula
         new_states = ','.join(new_states.keys())
         # Criando uma string com os estados finais separados por vírgula
         marked_states = ','.join(marked_states)
 
         # Criando o autômato inicial
-        automaton = Automaton(new_states, all_events, initial_state, marked_states, transitions)
+        automaton = Automaton(new_states, all_events_aux, initial_state, marked_states, transitions)
         automaton = self.accessibility(automaton)
 
         return automaton
