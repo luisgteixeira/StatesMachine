@@ -64,9 +64,26 @@ class FileManager(object):
 					input_handler = open(input_file)
 					# Le cada linha do arquivo para uma lista
 					content = input_handler.readlines()
+
+					# Remove as linhas vazias
+					while '\n' in content:
+						content.remove('\n')
+
+					# Obtem indices dos comentarios
+					comments = []
+					for line in content:
+						if line.startswith('#'):
+							comments.append(line)
+
+					# Remove os comentarios
+					for comment in comments:
+						content.remove(comment)
+
+					# Remove espacoes em branco e quebras de linha
 					for i, line in enumerate(content):
 						line = line.replace(" ", "")
 						content[i] = line.replace("\n", "")
+
 				except Exception as e:
 					# Caso ocorra alguma excecao, uma mensagem de erro eh
 					# adicionada ao arquivo de log e exibida no termonal

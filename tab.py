@@ -31,20 +31,6 @@ class Tab(tk.Frame):
         label_image = tk.Label(self, image = self.image)
         label_image.grid(column = 1, row = 1, sticky = tk.NW) # melhor substituir por grid
 
-        self.create_edition_frame()
-
-
-    def create_edition_frame(self):
-        self.edition_frame = tk.Frame(self)
-        self.edition_frame.grid(column = 2, row = 1, sticky = tk.NW)
-
-        self.automaton_text = tk.Text(self.edition_frame, width = 25)
-        self.automaton_text.insert(tk.END, self.automaton.to_file_format())
-        self.automaton_text.pack()
-
-        self.refresh_button = tk.Button(self.edition_frame, text = 'Atualizar')
-        self.refresh_button.pack()
-
 
     def set_file_path(self, file_path):
         """Configura o caminho absoluto do arquivo associado a aba."""

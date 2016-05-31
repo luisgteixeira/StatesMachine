@@ -1,7 +1,16 @@
+# Estados
 p,q,r
+
+# Eventos
 a,b,c,*
+
+# Estado inicial
 p
+
+# Estados finais
 r
+
+# Transicoes
 p-*-q
 p-*-r
 p-b-q
@@ -10,3 +19,5 @@ q-a-p
 q-c-q
 q-b-r
 q-c-p
+
+

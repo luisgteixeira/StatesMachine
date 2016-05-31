@@ -20,6 +20,8 @@ class Application(tk.Frame):
         self.grid(column = 1, row = 1, sticky = tk.NW)
 
         self.opened_tabs = [] # Lista de abas abertas
+        self.selection_options = [] # Lista de checkbuttons para selecaos
+        self.selection_values = [] # Indica os valores de cada checkbutton
 
         self.create_widgets()
 
@@ -35,6 +37,9 @@ class Application(tk.Frame):
         # Cria frame para exibicao dos automatos
         self.create_tabbed_frame()
 
+        # Cria frame de selecao de automatos para operacoes
+        self.create_selection_frame()
+
 
     def create_tabbed_frame(self):
         """Cria o frame principal, onde sao exibidos os automatos."""
@@ -43,7 +48,27 @@ class Application(tk.Frame):
         self.tabbed_frame.bind('<Button-3>', self.show_context_menu)
 
 
+    def create_selection_frame(self):
+        """Cria o frame para selecao de automatos para operacoes nao unarias."""
+        self.selection_frame = tk.Frame(self)
+        self.selection_frame['pady'] = '20'
+        self.selection_frame['padx'] = '5'
+
+        self.selection_label = tk.Button(self.selection_frame, text = 'Selecione o automato:')
+        self.selection_label.pack()
+
+
+    def add_selection_option(self, name):
+        """"""
+        var = tk.IntVar()
+        self.selection_values.append(var)
+        selection_option = tk.Checkbutton(self.selection_frame, text = name, variable=var)
+        self.selection_options.append(selection_option)
+        selection_option.pack()
+
+
     def create_context_menu(self):
+        """"""
         self.context_menu = tk.Menu(self.tabbed_frame, tearoff=0)
         self.context_menu.add_command(label = 'Fechar', command = self.close_tab)
 
@@ -52,10 +77,14 @@ class Application(tk.Frame):
         """Adiciona uma aba ao frame principal."""
         if self.tabbed_frame.index('end') == 0:
             self.tabbed_frame.grid(column = 2, row = 1, sticky = tk.N)
+            self.selection_frame.grid(column = 3, row = 1, sticky = tk.NW)
+
         self.tabbed_frame.add(tab, text = tab.get_file_name())
         self.opened_tabs.append(tab)
         tab_id = self.tabbed_frame.index('end') - 1
         self.tabbed_frame.select(tab_id)
+
+        self.add_selection_option(tab.get_file_name())
 
 
     def create_buttons_frame(self):
@@ -120,12 +149,14 @@ class Application(tk.Frame):
         self.trim_button.pack()
 
         # Botao para o calculo da composicao paralela
-        self.parallel_composition_button = tk.Button(self.buttons_frame, text = 'Composição paralela')
+        self.parallel_composition_button = tk.Button(self.buttons_frame,
+            text = 'Composição paralela', command = self.op_parallel_composition)
         self.stylize_button(self.parallel_composition_button)
         self.parallel_composition_button.pack()
 
         # Botao para o calculo do produto
-        self.product_button = tk.Button(self.buttons_frame, text = 'Produto')
+        self.product_button = tk.Button(self.buttons_frame,
+            text = 'Produto', command = self.op_product)
         self.stylize_button(self.product_button)
         self.product_button.pack()
 
@@ -220,14 +251,61 @@ class Application(tk.Frame):
             self.add_tab(tab)
 
 
+    def get_selected_checkbuttons(self):
+        """Retorna os indices das abas selecionadas no checkbox."""
+        selected_automatons_indexes = []
+        for index, var in enumerate(self.selection_values):
+            if var.get() == 1:
+                selected_automatons_indexes.append(index)
+
+        return selected_automatons_indexes
+
+
+    def execute_composition(self, composition):
+        """"""
+        """Executa operacoes com apenas um automato."""
+        selected_tabs_indexes = self.get_selected_checkbuttons()
+        if len(selected_tabs_indexes) < 2:
+            messagebox.showerror('Erro', 'Você deve selecionar ao menos dois automatos.')
+        else:
+            selected_automatons = []
+            for selected_tab_index in selected_tabs_indexes:
+                tab = self.opened_tabs[selected_tab_index]
+                automaton = tab.get_automaton()
+                selected_automatons.append(automaton)
+
+            aut_op = AutomatonOperation(selected_automatons[0])
+            automaton_name = composition #+ '_' + selected_tab.get_file_name()
+            result_automaton = None
+
+            if composition == 'product':
+                result_automaton = selected_automatons[0]
+                for i in range(1, len(selected_automatons)):
+                    result_automaton = aut_op.product_composition(result_automaton, selected_automatons[i])
+            elif composition == 'parallel_composition':
+                result_automaton = selected_automatons[0]
+                for i in range(1, len(selected_automatons)):
+                    result_automaton = aut_op.parallel_composition(result_automaton, selected_automatons[i])
+            else:
+                print('Operacao invalida.')
+
+            tab = Tab(result_automaton, automaton_name, self.tabbed_frame)
+            self.add_tab(tab)
+
+
     def close_tab(self):
         """Fecha a aba selecionada."""
         selected_tab_index = self.tabbed_frame.index('current')
         self.tabbed_frame.forget(selected_tab_index)
         self.opened_tabs.pop(selected_tab_index)
+        self.selection_options[selected_tab_index].destroy()
+        self.selection_options.pop(selected_tab_index)
+        self.selection_values.pop(selected_tab_index)
         if self.tabbed_frame.index('end') == 0:
             self.tabbed_frame.destroy()
             self.create_tabbed_frame()
+            self.selection_frame.destroy()
+            self.create_selection_frame()
 
 
     def save_file(self):
@@ -267,9 +345,23 @@ class Application(tk.Frame):
         """Executa a operacao de minimizacao."""
         self.execute_operation('minimization')
 
+
     def op_convertion(self):
         """Converte um automato nao-deterministico em deterministico."""
         self.execute_operation('convertion')
+
+
+    def op_product(self):
+        """Faz a composicao de automatos atraves da operacao de produto."""
+        self.execute_composition('product')
+
+
+    def op_parallel_composition(self):
+        """
+        Faz a composicao de automatos atraves da operacao de composicao
+        paralela.
+        """
+        self.execute_composition('parallel_composition')
 
 
 if __name__ == '__main__':
