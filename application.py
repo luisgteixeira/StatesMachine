@@ -51,10 +51,11 @@ class Application(tk.Frame):
     def create_selection_frame(self):
         """Cria o frame para selecao de automatos para operacoes nao unarias."""
         self.selection_frame = tk.Frame(self)
-        self.selection_frame['pady'] = '20'
+        self.selection_frame['pady'] = '15'
         self.selection_frame['padx'] = '5'
 
-        self.selection_label = tk.Button(self.selection_frame, text = 'Selecione o automato:')
+        self.selection_label = tk.Label(self.selection_frame, text = 'Selecione os autômatos:')
+        self.selection_label['pady'] = '5'
         self.selection_label.pack()
 
 
